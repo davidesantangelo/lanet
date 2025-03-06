@@ -87,28 +87,35 @@ module Lanet
       end
     end
 
-    desc "ping", "Ping a host or multiple hosts with real-time output"
+    desc "ping [HOST]", "Ping a host or multiple hosts with real-time output"
     option :host, type: :string, desc: "Single host to ping"
     option :hosts, type: :string, desc: "Comma-separated list of hosts to ping"
     option :timeout, type: :numeric, default: 1, desc: "Ping timeout in seconds"
     option :count, type: :numeric, default: 5, desc: "Number of ping packets to send"
     option :quiet, type: :boolean, default: false, desc: "Only display summary"
     option :continuous, type: :boolean, default: false, desc: "Ping continuously until interrupted"
-    def ping
-      if !options[:host] && !options[:hosts]
-        puts "Error: You must specify either --host or --hosts"
+    def ping(target_host = nil)
+      # Support both traditional command (lanet ping 192.168.1.1) and option-style (--host)
+      target = target_host || options[:host] || options[:hosts]
+
+      unless target
+        puts "Error: Missing host to ping"
+        puts "Usage: lanet ping HOST"
+        puts "   or: lanet ping --host HOST"
+        puts "   or: lanet ping --hosts HOST1,HOST2,HOST3"
         return
       end
 
       pinger = Lanet::Ping.new(timeout: options[:timeout], count: options[:count])
 
-      if options[:host]
+      if target_host || options[:host]
         # For a single host, we use real-time output unless quiet is specified
+        host = target_host || options[:host]
         if options[:quiet]
-          result = pinger.ping_host(options[:host], false, options[:continuous])
-          display_ping_summary(options[:host], result)
+          result = pinger.ping_host(host, false, options[:continuous])
+          display_ping_summary(host, result)
         else
-          pinger.ping_host(options[:host], true, options[:continuous]) # Real-time output with optional continuous mode
+          pinger.ping_host(host, true, options[:continuous]) # Real-time output with optional continuous mode
         end
       else
         hosts = options[:hosts].split(",").map(&:strip)
@@ -201,6 +208,20 @@ module Lanet
 
       puts "\nOutput:"
       puts result[:output]
+    end
+
+    # Override method_missing to provide helpful error messages for common mistakes
+    def method_missing(method, *args)
+      if method.to_s == "ping" && args.any?
+        invoke "ping", [], { host: args.first, timeout: options[:timeout], count: options[:count],
+                             quiet: options[:quiet], continuous: options[:continuous] }
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method, include_private = false)
+      method.to_s == "ping" || super
     end
   end
 end

@@ -28,7 +28,7 @@ module Lanet
       @verbose = verbose
       range = IPAddr.new(cidr).to_range
       queue = Queue.new
-      range.each { |ip| queue << ip }
+      range.each { |ip| queue << ip.to_s } # Store strings to save memory
 
       total_ips = queue.size
       completed = 0
@@ -37,17 +37,14 @@ module Lanet
         Thread.new do
           while (ip = begin
             queue.pop(true)
-          rescue ThreadError
+          rescue StandardError
             nil
           end)
-            check_host(ip.to_s, timeout)
+            check_host(ip, timeout)
             @mutex.synchronize do
               completed += 1
-              # Update progress more frequently for small scans
-              # and only every 10 for large scans (for better performance)
               if total_ips < 100 || (completed % 10).zero? || completed == total_ips
-                print_progress(completed,
-                               total_ips)
+                print_progress(completed, total_ips)
               end
             end
           end
@@ -55,7 +52,6 @@ module Lanet
       end
 
       wait_for_threads(threads)
-      # Ensure the progress shows 100% at the end
       print_progress(total_ips, total_ips)
       puts "\nScan complete. Found #{@hosts.size} active hosts."
       @verbose ? @hosts : @hosts.map { |h| h[:ip] }
@@ -65,71 +61,73 @@ module Lanet
 
     def check_host(ip, timeout)
       if @verbose
-        host_info = { ip: ip, ports: {}, response_time: nil }
-
-        # Measure response time
         start_time = Time.now
-        is_active = false
-
-        # Check common ports
-        COMMON_PORTS.each_key do |port|
-          if port_open?(ip, port, timeout)
-            host_info[:ports][port] = COMMON_PORTS[port]
-            is_active = true
-          end
-        end
-
-        # Try UDP as last resort
-        is_active ||= udp_check(ip)
-
-        if is_active
-          # Add response time
-          host_info[:response_time] = ((Time.now - start_time) * 1000).round(2)
-
-          # Try to get hostname
+        result = check_ports(ip, COMMON_PORTS.keys, timeout)
+        response_time = ((Time.now - start_time) * 1000).round(2)
+        if result[:active]
+          host_info = {
+            ip: ip,
+            ports: result[:open_ports].map { |port| [port, COMMON_PORTS[port]] }.to_h,
+            response_time: response_time
+          }
           begin
             host_info[:hostname] = Resolv.getname(ip)
           rescue Resolv::ResolvError
             host_info[:hostname] = "Unknown"
           end
-
           @mutex.synchronize { @hosts << host_info }
         end
       else
-        # Original simplified logic
-        [80, 443, 22].each do |port|
-          return add_active_ip(ip) if port_open?(ip, port, timeout)
-        end
-        udp_check(ip)
+        result = check_ports(ip, [80, 443, 22], timeout)
+        @mutex.synchronize { @hosts << { ip: ip } } if result[:active] # Optionally: || udp_check(ip)
       end
     rescue StandardError => e
       puts "\nError checking host #{ip}: #{e.message}" if $DEBUG
-      false
     end
 
-    def port_open?(ip, port, timeout)
-      Timeout.timeout(timeout) do
-        Socket.tcp(ip, port, connect_timeout: timeout).close
-        true
+    def check_ports(ip, ports, timeout)
+      sockets = ports.map do |port|
+        socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+        socket.bind(Socket.sockaddr_in(0, "0.0.0.0"))
+        begin
+          socket.connect_nonblock(Socket.sockaddr_in(port, ip))
+          { socket: socket, port: port }
+        rescue Errno::EINPROGRESS
+          { socket: socket, port: port }
+        rescue StandardError
+          socket.close
+          nil
+        end
+      end.compact
+
+      writable, = IO.select(nil, sockets.map { |s| s[:socket] }, nil, timeout)
+
+      open_ports = []
+      active = false
+
+      if writable
+        active = true
+        writable.each do |socket|
+          if socket.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR).int.zero?
+            port = sockets.find { |s| s[:socket] == socket }[:port]
+            open_ports << port
+          end
+        end
       end
-    rescue Errno::ECONNREFUSED
-      true  # Host is up, port is closed but responded
-    rescue StandardError
-      false # Connection failed
+
+      sockets.each { |s| s[:socket].close }
+
+      { active: active, open_ports: open_ports }
     end
 
     def udp_check(ip)
-      Timeout.timeout(0.1) do # Very short timeout for UDP
+      # NOTE: This method is currently ineffective as it doesn't send data or check responses.
+      Timeout.timeout(0.1) do
         UDPSocket.new.connect(ip, 31_337).close
-        return @verbose ? false : add_active_ip(ip) # Consider it active if no immediate error
+        true
       end
-    rescue StandardError # Considered failed in case of error
+    rescue StandardError
       false
-    end
-
-    def add_active_ip(ip)
-      @mutex.synchronize { @hosts << { ip: ip } }
-      true
     end
 
     def print_progress(completed, total_ips)
@@ -141,22 +139,6 @@ module Lanet
       threads.each(&:join)
     rescue Interrupt
       puts "\nScan interrupted. Returning partial results..."
-    end
-
-    def get_local_ip
-      # Get local IP (more reliable than relying on exceptions)
-      UDPSocket.open do |s|
-        s.connect("8.8.8.8", 1)
-        s.addr.last
-      end
-    rescue StandardError
-      "127.0.0.1"
-    end
-
-    def get_network_info
-      local_ip = get_local_ip
-      subnet = "#{local_ip.split(".")[0..2].join(".")}.0/24"
-      { local_ip: local_ip, subnet: subnet }
     end
   end
 end

@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-## [0.1.0] - 2025-03-08
+## [0.1.0] - 2025-03-06
 
 ### Added
 - Initial release of Lanet gem

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "English"
 require "open3"
 require "timeout"
 
@@ -34,45 +35,25 @@ module Lanet
         # Command varies by OS
         ping_cmd = ping_command(host)
 
-        # Use Open3.popen3 for real-time output processing
+        # Use different approaches based on output mode
         if realtime
           process_realtime_ping(ping_cmd, result)
         else
-          # Use the standard method for non-realtime output
-          process_standard_ping(ping_cmd, result)
+          # Use backticks for quiet mode - much more reliable than Open3 for this case
+          process_quiet_ping(ping_cmd, result)
         end
       rescue Timeout::Error
         result[:output] = "Ping timed out after #{@timeout * 2} seconds"
       rescue Interrupt
         # Handle Ctrl+C gracefully for continuous mode
-        puts "\n--- #{host} ping statistics ---"
-        if result[:responses].any?
-          avg_time = result[:responses].map { |r| r[:time] }.sum / result[:responses].size
-          min_time = result[:responses].map { |r| r[:time] }.min
-          max_time = result[:responses].map { |r| r[:time] }.max
-
-          # Calculate proper packet loss for continuous mode
-          if @continuous
-            highest_seq = result[:responses].map { |r| r[:seq] }.max
-            unique_seqs = result[:responses].map { |r| r[:seq] }.uniq.size
-            transmitted = highest_seq + 1
-            packet_loss = ((transmitted - unique_seqs) / transmitted.to_f * 100).round(1)
-
-            puts "#{transmitted} packets transmitted, #{unique_seqs} packets received, #{packet_loss}% packet loss"
-          else
-            # Normal mode - compare against expected count
-            packet_loss = ((@count - result[:responses].size) / @count.to_f * 100).round(1)
-            puts "#{@count} packets transmitted, #{result[:responses].size} packets received, #{packet_loss}% packet loss"
-          end
-
-          puts "round-trip min/avg/max = #{min_time.round(3)}/#{avg_time.round(3)}/#{max_time.round(3)} ms"
-        else
-          puts "0 packets transmitted, 0 packets received, 100% packet loss"
-        end
-        exit(0) # Exit the program when interrupted
+        print_ping_statistics(host, result) if realtime
+        exit(0) if realtime # Only exit if in realtime mode - otherwise let the caller handle it
       rescue StandardError => e
         result[:output] = "Error: #{e.message}"
       end
+
+      # Only print statistics in realtime mode and not continuous
+      print_ping_statistics(host, result) if realtime && !@continuous
 
       result
     end
@@ -121,12 +102,15 @@ module Lanet
 
     private
 
-    def process_standard_ping(ping_cmd, result)
-      Timeout.timeout(@timeout * 2) do
-        output, status = Open3.capture2e(ping_cmd)
-
+    def process_quiet_ping(ping_cmd, result)
+      # Use backticks for simplest, most reliable execution in quiet mode
+      Timeout.timeout(@timeout * @count * 2) do
+        output = `#{ping_cmd}`
         result[:output] = output
-        if status.success?
+        exit_status = $CHILD_STATUS.exitstatus
+
+        # Process the output
+        if exit_status.zero? || output.include?("bytes from")
           result[:status] = true
 
           # Extract individual ping responses
@@ -139,8 +123,16 @@ module Lanet
 
           # Extract packet loss
           result[:packet_loss] = ::Regexp.last_match(1).to_f if output =~ /(\d+(?:\.\d+)?)% packet loss/
+        else
+          # No responses
+          result[:status] = false
+          result[:packet_loss] = 100.0
         end
       end
+    rescue Timeout::Error
+      result[:output] = "Ping timed out after #{@timeout * @count * 2} seconds"
+    rescue StandardError => e
+      result[:output] = "Error: #{e.message}"
     end
 
     def process_realtime_ping(ping_cmd, result)
@@ -148,42 +140,54 @@ module Lanet
       thread = nil
 
       begin
-        Open3.popen3(ping_cmd) do |_stdin, stdout, stderr, process_thread|
+        Open3.popen3(ping_cmd) do |_stdin, stdout, _stderr, process_thread|
           thread = process_thread
+          stdout_thread = Thread.new do
+            # Read stdout in real time
+            while (line = stdout.gets)
+              all_output += line
+              print line # Print in real-time
 
-          # Read stdout in real time
-          while (line = stdout.gets)
-            all_output += line
-            print line # Print in real-time
+              # Parse and store responses as they come
+              case RbConfig::CONFIG["host_os"]
+              when /mswin|mingw|cygwin/
+                if line =~ /Reply from .* time=(\d+)ms TTL=(\d+)/
+                  seq = result[:responses].size
+                  ttl = ::Regexp.last_match(2).to_i
+                  time = ::Regexp.last_match(1).to_f
+                  result[:responses] << { seq: seq, ttl: ttl, time: time }
+                end
+              else
+                if line =~ /icmp_seq=(\d+) ttl=(\d+) time=([\d.]+) ms/
+                  seq = ::Regexp.last_match(1).to_i
+                  ttl = ::Regexp.last_match(2).to_i
+                  time = ::Regexp.last_match(3).to_f
+                  result[:responses] << { seq: seq, ttl: ttl, time: time }
+                end
+              end
 
-            # Parse and store responses as they come
-            case RbConfig::CONFIG["host_os"]
-            when /mswin|mingw|cygwin/
-              if line =~ /Reply from .* time=(\d+)ms TTL=(\d+)/
-                seq = result[:responses].size
-                ttl = ::Regexp.last_match(2).to_i
-                time = ::Regexp.last_match(1).to_f
-                result[:responses] << { seq: seq, ttl: ttl, time: time }
-              end
-            else
-              if line =~ /icmp_seq=(\d+) ttl=(\d+) time=([\d.]+) ms/
-                seq = ::Regexp.last_match(1).to_i
-                ttl = ::Regexp.last_match(2).to_i
-                time = ::Regexp.last_match(3).to_f
-                result[:responses] << { seq: seq, ttl: ttl, time: time }
-              end
+              # For non-continuous mode, exit when we've collected enough responses
+              break if !@continuous && result[:responses].size >= @count
             end
-
-            # For non-continuous mode, exit when we've collected enough responses
-            break if !@continuous && result[:responses].size >= @count
+          rescue IOError
+            # Stream may be closed - this is ok
           end
 
-          # Get any error output
-          err_output = stderr.read
-          all_output += err_output unless err_output.empty?
-
-          # For non-continuous mode, this ensures we wait for completion
-          process_thread.join unless @continuous
+          # Wait for the stdout thread to complete or the process to exit
+          if @continuous
+            stdout_thread.join # Wait indefinitely in continuous mode
+          else
+            # For non-continuous mode, wait for completion with a reasonable timeout
+            begin
+              Timeout.timeout(@timeout * @count * 2) do
+                process_thread.join
+              end
+            rescue Timeout::Error
+              # If it takes too long, we'll terminate below in the ensure block
+            ensure
+              stdout_thread.kill if stdout_thread.alive?
+            end
+          end
 
           # Set success status
           result[:status] = !result[:responses].empty?
@@ -194,19 +198,53 @@ module Lanet
             result[:response_time] = result[:responses].map { |r| r[:time] }.sum / result[:responses].size
 
             # Calculate packet loss for non-continuous mode
-            result[:packet_loss] = ((@count - result[:responses].size) / @count.to_f * 100).round(1) unless @continuous
+            unless @continuous
+              total_expected = @count
+              result[:packet_loss] = ((total_expected - result[:responses].size) / total_expected.to_f * 100).round(1)
+            end
           end
         end
+      rescue IOError => e
+        # Handle IOError specifically
+        result[:output] += "\nWarning: IO operation failed: #{e.message}"
       ensure
-        # If we're in continuous mode and get here due to exception or interrupt,
-        # make sure we kill the process to prevent zombies
-        if @continuous && thread&.alive?
+        # Clean up any threads and processes
+        if thread&.alive?
+
           begin
             Process.kill("TERM", thread.pid)
           rescue StandardError
             nil
           end
+
         end
+      end
+    end
+
+    def print_ping_statistics(host, result)
+      puts "\n--- #{host} ping statistics ---"
+      if result[:responses].any?
+        avg_time = result[:responses].map { |r| r[:time] }.sum / result[:responses].size
+        min_time = result[:responses].map { |r| r[:time] }.min
+        max_time = result[:responses].map { |r| r[:time] }.max
+
+        # Calculate proper packet loss
+        if @continuous
+          highest_seq = result[:responses].map { |r| r[:seq] }.max
+          unique_seqs = result[:responses].map { |r| r[:seq] }.uniq.size
+          transmitted = highest_seq + 1
+          packet_loss = ((transmitted - unique_seqs) / transmitted.to_f * 100).round(1)
+
+          puts "#{transmitted} packets transmitted, #{unique_seqs} packets received, #{packet_loss}% packet loss"
+        else
+          # Normal mode - compare against expected count
+          packet_loss = ((@count - result[:responses].size) / @count.to_f * 100).round(1)
+          puts "#{@count} packets transmitted, #{result[:responses].size} packets received, #{packet_loss}% packet loss"
+        end
+
+        puts "round-trip min/avg/max = #{min_time.round(3)}/#{avg_time.round(3)}/#{max_time.round(3)} ms"
+      else
+        puts "0 packets transmitted, 0 packets received, 100% packet loss"
       end
     end
 
