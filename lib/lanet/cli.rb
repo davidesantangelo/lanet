@@ -59,7 +59,9 @@ module Lanet
           puts "─" * 50
           puts "IP: #{host[:ip]}"
           puts "Hostname: #{host[:hostname]}" if host[:hostname]
+          puts "MAC: #{host[:mac]}" if host[:mac] # Add this line to display MAC addresses
           puts "Response time: #{host[:response_time]}ms" if host[:response_time]
+          puts "Detection method: #{host[:detection_method]}" if host[:detection_method]
 
           next unless host[:ports] && !host[:ports].empty?
 

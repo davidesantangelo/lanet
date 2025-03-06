@@ -50,7 +50,7 @@ Lanet provides a powerful CLI for common network operations:
 lanet scan --range 192.168.1.0/24
 ```
 
-With verbose output (shows hostname, open ports, and response time):
+With verbose output (shows detailed host information):
 ```bash
 lanet scan --range 192.168.1.0/24 --verbose
 ```
@@ -58,6 +58,30 @@ lanet scan --range 192.168.1.0/24 --verbose
 Control scan performance with threads:
 ```bash
 lanet scan --range 192.168.1.0/24 --threads 16 --timeout 2
+```
+
+The scanner employs multiple detection methods to find active hosts:
+- TCP port connection attempts
+- ICMP ping requests
+- UDP packet probing
+- ARP table lookups
+
+Verbose scanning provides rich device information:
+```
+IP: 192.168.1.1
+Hostname: router.home
+MAC: a4:2b:b0:8a:5c:de
+Response time: 5.23ms
+Detection method: TCP
+Open ports:
+  - 80: HTTP
+  - 443: HTTPS
+  - 22: SSH
+```
+
+Scanning shows real-time progress for tracking large network scans:
+```
+Scanning network: 67.5% complete (162/240)
 ```
 
 #### Sending a message to a specific target
