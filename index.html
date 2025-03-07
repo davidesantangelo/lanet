@@ -9,9 +9,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f9f9f9;
         }
         h1 {
             color: #2c3e50;
@@ -22,21 +23,30 @@
             color: #2980b9;
             margin-top: 30px;
         }
+        h3 {
+            color: #16a085;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #27ae60;
+            margin-top: 20px;
+        }
         pre {
             background-color: #f8f8f8;
             border: 1px solid #ddd;
             border-left: 3px solid #3498db;
             padding: 15px;
             overflow-x: auto;
+            border-radius: 4px;
         }
         code {
             font-family: 'Courier New', Courier, monospace;
         }
         .container {
             background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
         }
         .feature {
             margin: 20px 0;
@@ -47,6 +57,82 @@
             background-color: #e8f4fc;
             padding: 15px;
             margin: 10px 0;
+            border-radius: 6px;
+        }
+        .cli-example {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 12px 18px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+        .cli-example::before {
+            content: "$";
+            color: #3498db;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .cli-section {
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .output-example {
+            background-color: #f0f0f0;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            border-left: 3px solid #9b59b6;
+        }
+        .tab-container {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .tab-buttons {
+            display: flex;
+            background-color: #f5f5f5;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            border-right: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+        .tab-button:hover, .tab-button.active {
+            background-color: #e0e0e0;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-new {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .note {
+            background-color: #fff8e1;
+            padding: 12px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
             border-radius: 4px;
         }
     </style>
@@ -54,17 +140,17 @@
 <body>
     <div class="container">
         <h1>Lanet</h1>
-        <p>A secure network communication library for Ruby applications.</p>
+        <p>A secure network communication library that enables reliable and protected message exchange between devices on the same network.</p>
         
         <h2>Key Features</h2>
         
         <div class="feature">
             <h3>Encrypted Communication</h3>
-            <p>Protect your messages with military-grade AES-256-CBC encryption to ensure confidentiality.</p>
+            <p>Protect your messages with AES-256-CBC encryption to ensure confidentiality during transmission.</p>
         </div>
         
         <div class="feature">
-            <h3>Digital Signatures</h3>
+            <h3>Digital Signatures <span class="badge badge-new">New in v0.2.0</span></h3>
             <p>Verify message authenticity and integrity with RSA-based digital signatures.</p>
             
             <div class="security-feature">
@@ -79,18 +165,166 @@
         </div>
         
         <div class="feature">
-            <h3>Simple UDP-based Messaging</h3>
-            <p>Send and receive messages easily with straightforward sender and receiver classes.</p>
+            <h3>Network Discovery</h3>
+            <p>Automatically find active devices on your local network with advanced scanning capabilities.</p>
         </div>
         
         <div class="feature">
-            <h3>Network Broadcasting</h3>
-            <p>Support for broadcasting messages across your entire network.</p>
+            <h3>Broadcasting</h3>
+            <p>Send messages to all devices on your network simultaneously.</p>
+        </div>
+
+        <h2>Command Line Interface</h2>
+
+        <div class="note">
+            <strong>Note:</strong> All Lanet commands have detailed help available. Try <code>lanet [command] --help</code> for more options.
         </div>
         
-        <h2>Quick Example</h2>
+        <div class="cli-section">
+            <h3>Digital Signature Commands <span class="badge badge-new">New in v0.2.0</span></h3>
+            
+            <h4>Generate a Key Pair</h4>
+            <p>Create RSA keys for signing and verifying messages:</p>
+            <div class="cli-example">
+                lanet keygen
+            </div>
+            
+            <p>Generate keys with custom options:</p>
+            <div class="cli-example">
+                lanet keygen --bits 4096 --output ~/.lanet_keys
+            </div>
+            
+            <div class="output-example">
+Key pair generated!
+Private key saved to: /home/user/.lanet_keys/lanet_private.key
+Public key saved to: /home/user/.lanet_keys/lanet_public.key
+
+IMPORTANT: Keep your private key secure and never share it.
+Share your public key with others who need to verify your messages.
+            </div>
+            
+            <h4>Send a Signed Message</h4>
+            <div class="cli-example">
+                lanet send --target 192.168.1.5 --message "Signed message" --private-key-file lanet_private.key
+            </div>
+            
+            <h4>Send a Signed & Encrypted Message</h4>
+            <div class="cli-example">
+                lanet send --target 192.168.1.5 --message "Secure signed message" --key "my_secret_key" --private-key-file lanet_private.key
+            </div>
+            
+            <h4>Broadcast a Signed Message</h4>
+            <div class="cli-example">
+                lanet broadcast --message "Important announcement" --private-key-file lanet_private.key
+            </div>
+            
+            <h4>Listen for and Verify Signed Messages</h4>
+            <div class="cli-example">
+                lanet listen --public-key-file lanet_public.key
+            </div>
+            
+            <h4>Listen for Encrypted & Signed Messages</h4>
+            <div class="cli-example">
+                lanet listen --encryption-key "my_secret_key" --public-key-file lanet_public.key
+            </div>
+            
+            <p>Example output when receiving a signed message:</p>
+            <div class="output-example">
+Message from 192.168.1.5:
+Content: Hello, this is a signed message
+Signature: ✓ VERIFIED
+----------------------------------------
+            </div>
+        </div>
+
+        <div class="cli-section">
+            <h3>Basic Message Commands</h3>
+            
+            <h4>Send a Message</h4>
+            <div class="cli-example">
+                lanet send --target 192.168.1.5 --message "Hello there!"
+            </div>
+            
+            <h4>Send an Encrypted Message</h4>
+            <div class="cli-example">
+                lanet send --target 192.168.1.5 --message "Secret message" --key "my_secret_key"
+            </div>
+            
+            <h4>Broadcast a Message</h4>
+            <div class="cli-example">
+                lanet broadcast --message "Announcement for everyone!"
+            </div>
+            
+            <h4>Listen for Messages</h4>
+            <div class="cli-example">
+                lanet listen
+            </div>
+            
+            <h4>Listen for Encrypted Messages</h4>
+            <div class="cli-example">
+                lanet listen --encryption-key "my_secret_key"
+            </div>
+        </div>
+
+        <div class="cli-section">
+            <h3>Network Discovery Commands</h3>
+            
+            <h4>Scan Network</h4>
+            <div class="cli-example">
+                lanet scan --range 192.168.1.0/24
+            </div>
+            
+            <h4>Detailed Network Scan</h4>
+            <div class="cli-example">
+                lanet scan --range 192.168.1.0/24 --verbose --threads 16 --timeout 2
+            </div>
+            
+            <h4>Ping a Host</h4>
+            <div class="cli-example">
+                lanet ping 192.168.1.5
+            </div>
+            
+            <h4>Continuous Ping</h4>
+            <div class="cli-example">
+                lanet ping 192.168.1.5 --continuous
+            </div>
+            
+            <h4>Ping Multiple Hosts</h4>
+            <div class="cli-example">
+                lanet ping --hosts 192.168.1.5,192.168.1.6,192.168.1.7 --count 5
+            </div>
+        </div>
         
-        <pre><code>require 'lanet'
+        <h2>Ruby Code Examples</h2>
+
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="openTab(event, 'tab-basic')">Basic Usage</button>
+                <button class="tab-button" onclick="openTab(event, 'tab-signatures')">Digital Signatures</button>
+                <button class="tab-button" onclick="openTab(event, 'tab-advanced')">Advanced Usage</button>
+            </div>
+            
+            <div id="tab-basic" class="tab-content active">
+                <pre><code>require 'lanet'
+
+# Send a message to a specific IP
+sender = Lanet::Sender.new(5000)
+sender.send_to('192.168.1.5', 'Hello from Ruby!')
+
+# Listen for incoming messages
+receiver = Lanet::Receiver.new(5000)
+receiver.listen do |data, ip|
+  puts "Received from #{ip}: #{data}"
+end
+
+# Work with encrypted messages
+encrypted = Lanet::Encryptor.prepare_message('Secret message', 'my_encryption_key')
+# Send the encrypted message
+sender.send_to('192.168.1.5', encrypted)</code></pre>
+            </div>
+            
+            <div id="tab-signatures" class="tab-content">
+                <pre><code>require 'lanet'
 
 # Generate RSA key pair for signing
 key_pair = Lanet::Signer.generate_key_pair
@@ -121,7 +355,46 @@ receiver.listen do |data, sender_ip|
   
   puts "Message: #{result[:content]}"
   puts "Verified: #{result[:verified]}"
+  puts "Verification status: #{result[:verification_status]}"
 end</code></pre>
+            </div>
+            
+            <div id="tab-advanced" class="tab-content">
+                <pre><code>require 'lanet'
+
+# Create a scanner and find active devices
+scanner = Lanet::Scanner.new
+active_hosts = scanner.scan('192.168.1.0/24', 1, 32, true)
+
+active_hosts.each do |host|
+  puts "Host: #{host[:ip]}, Hostname: #{host[:hostname]}"
+  puts "Response time: #{host[:response_time]}ms"
+  
+  if host[:ports]
+    puts "Open ports:"
+    host[:ports].each do |port, service|
+      puts "  - #{port}: #{service}"
+    end
+  end
+end
+
+# Ping a specific host
+pinger = Lanet::Ping.new
+result = pinger.ping_host('192.168.1.5', true)
+puts "Host reachable: #{result[:status]}"
+puts "Response time: #{result[:response_time]}ms"
+
+# Broadcast a signed and encrypted message
+encryption_key = "network-shared-key"
+message = "Important system notification"
+signed_message = Lanet::Encryptor.prepare_message(
+  message, 
+  encryption_key, 
+  private_key
+)
+sender.broadcast(signed_message)</code></pre>
+            </div>
+        </div>
         
         <h2>Installation</h2>
         
@@ -135,8 +408,27 @@ end</code></pre>
         <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub repository</a>.</p>
         
         <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet - Secure Network Communications Library</p>
+            <p>Lanet v0.2.0 - Secure Network Communications Library</p>
         </footer>
     </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].className = tabContent[i].className.replace(" active", "");
+            }
+            
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+    </script>
 </body>
 </html>
