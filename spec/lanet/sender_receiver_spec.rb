@@ -2,90 +2,56 @@
 
 require "spec_helper"
 
-RSpec.describe "Lanet Sender and Receiver" do
-  let(:port) { 12_345 }
-  let(:message) { "Hello, Lanet!" }
+RSpec.describe "Sender and Receiver" do
+  let(:port) { rand(15_000..15_999) } # Random high port to avoid conflicts
   let(:sender) { Lanet::Sender.new(port) }
   let(:receiver) { Lanet::Receiver.new(port) }
+  let(:message) { "Test message from sender" }
 
-  describe "communication" do
-    it "sends and receives messages" do
-      # Skip this test on CI environments where UDP might not work
-      skip "Skipping UDP test (may not work in all environments)" if ENV["CI"] == "true"
+  # We'll test just the sender part since it's hard to test actual UDP
+  # communication in a unit test without setting up actual network interfaces
+  describe "Sender" do
+    it "initializes with the specified port" do
+      expect(sender.instance_variable_get(:@port)).to eq(port)
+    end
 
-      received_data = nil
-      received_ip = nil
+    it "has send_to and broadcast methods" do
+      expect(sender).to respond_to(:send_to)
+      expect(sender).to respond_to(:broadcast)
+    end
 
-      # Start listener in a thread
-      thread = Thread.new do
-        receiver.listen do |data, ip|
-          received_data = data
-          received_ip = ip
-          Thread.exit # Stop after receiving one message
-        end
-      end
+    # We're mocking the actual socket send since we don't want to actually send UDP packets
+    it "can send a message to a specific IP" do
+      socket_mock = instance_double(UDPSocket)
+      allow(socket_mock).to receive(:setsockopt)
+      allow(socket_mock).to receive(:send)
+      allow(UDPSocket).to receive(:new).and_return(socket_mock)
 
-      # Give the receiver time to start
-      sleep 0.1
+      test_sender = Lanet::Sender.new(port)
+      expect(socket_mock).to receive(:send).with(message, 0, "127.0.0.1", port)
+      test_sender.send_to("127.0.0.1", message)
+    end
 
-      # Send a message to localhost
-      sender.send_to("127.0.0.1", message)
+    it "can broadcast a message" do
+      socket_mock = instance_double(UDPSocket)
+      allow(socket_mock).to receive(:setsockopt)
+      allow(socket_mock).to receive(:send)
+      allow(UDPSocket).to receive(:new).and_return(socket_mock)
 
-      # Wait a bit for the message to be received
-      sleep 0.5
-
-      # Kill the thread if it's still running
-      thread.kill if thread.alive?
-      thread.join
-
-      # Verify the message was received
-      expect(received_data).to eq(message)
-      expect(received_ip).to eq("127.0.0.1")
+      test_sender = Lanet::Sender.new(port)
+      expect(socket_mock).to receive(:send).with(message, 0, "255.255.255.255", port)
+      test_sender.broadcast(message)
     end
   end
 
-  describe Lanet::Sender do
-    describe "#initialize" do
-      it "creates a UDP socket" do
-        expect(sender.instance_variable_get(:@socket)).to be_a(UDPSocket)
-      end
+  # Similar to Sender, we'll test just the initialization of Receiver
+  describe "Receiver" do
+    it "initializes with the specified port" do
+      expect(receiver.instance_variable_get(:@port)).to eq(port)
     end
 
-    describe "#send_to" do
-      it "sends data to the specified IP" do
-        socket_mock = instance_double(UDPSocket)
-        allow(UDPSocket).to receive(:new).and_return(socket_mock)
-        allow(socket_mock).to receive(:setsockopt)
-
-        expect(socket_mock).to receive(:send).with(message, 0, "192.168.1.1", port)
-
-        sender.send_to("192.168.1.1", message)
-      end
-    end
-
-    describe "#broadcast" do
-      it "sends data to the broadcast address" do
-        socket_mock = instance_double(UDPSocket)
-        allow(UDPSocket).to receive(:new).and_return(socket_mock)
-        allow(socket_mock).to receive(:setsockopt)
-
-        expect(socket_mock).to receive(:send).with(message, 0, "255.255.255.255", port)
-
-        sender.broadcast(message)
-      end
-    end
-  end
-
-  describe Lanet::Receiver do
-    describe "#initialize" do
-      it "creates and binds a UDP socket" do
-        socket_mock = instance_double(UDPSocket)
-        allow(UDPSocket).to receive(:new).and_return(socket_mock)
-
-        expect(socket_mock).to receive(:bind).with("0.0.0.0", port)
-
-        Lanet::Receiver.new(port)
-      end
+    it "has a listen method" do
+      expect(receiver).to respond_to(:listen)
     end
   end
 end

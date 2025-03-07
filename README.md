@@ -16,7 +16,20 @@ A lightweight, powerful LAN communication tool for Ruby that enables secure mess
 - 🖥️ **Command-line interface** - Perform common network operations directly from your terminal.
 - 🧩 **Extensible** - Easily build custom tools and integrations using the Lanet API.
 - ⚙️ **Configurable:**  Adjust port settings, encryption keys, and network scan ranges.
+- **Digital Signatures**: Ensure message authenticity and integrity
 
+## Security Features
+
+### Encryption
+
+Lanet uses AES-256-CBC encryption to protect the content of messages. This ensures confidentiality during transmission.
+
+### Digital Signatures
+
+Digital signatures provide:
+- **Authentication**: Verify the identity of the message sender
+- **Data Integrity**: Ensure the message hasn't been tampered with during transit
+- **Non-repudiation**: Senders cannot deny sending a message they signed
 
 ## Installation
 
@@ -43,6 +56,76 @@ gem install lanet
 ### Command Line Interface
 
 Lanet provides a powerful CLI for common network operations:
+
+#### Generating Signature Keys
+
+Generate a key pair for digital signatures:
+
+```bash
+lanet keygen
+```
+
+Generate a key pair with specific options:
+
+```bash
+lanet keygen --bits 4096 --output ~/.lanet_keys
+```
+
+The command will generate two files:
+- `lanet_private.key`: Keep this secure and don't share it
+- `lanet_public.key`: Share this with others who need to verify your messages
+
+#### Sending Signed Messages
+
+Send a digitally signed message (without encryption):
+
+```bash
+lanet send --target 192.168.1.5 --message "Signed message" --private-key-file lanet_private.key
+```
+
+Send an encrypted and signed message:
+
+```bash
+lanet send --target 192.168.1.5 --message "Secure signed message" --key "my_secret_key" --private-key-file lanet_private.key
+```
+
+Broadcast a signed message to all devices:
+
+```bash
+lanet broadcast --message "Important announcement" --private-key-file lanet_private.key
+```
+
+#### Receiving and Verifying Signed Messages
+
+Listen for messages and verify signatures:
+
+```bash
+lanet listen --public-key-file lanet_public.key
+```
+
+Listen for encrypted and signed messages:
+
+```bash
+lanet listen --encryption-key "my_secret_key" --public-key-file lanet_public.key
+```
+
+When a signed message is received, the output will show verification status:
+
+```
+Message from 192.168.1.5:
+Content: Hello, this is a signed message
+Signature: VERIFIED
+----------------------------------------
+```
+
+If signature verification fails:
+
+```
+Message from 192.168.1.5:
+Content: Hello, this message was tampered with
+Signature: NOT VERIFIED: Signature verification failed
+----------------------------------------
+```
 
 #### Scanning the network
 

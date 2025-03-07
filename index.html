@@ -1,233 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lanet - Lightweight LAN Communication Tool for Networking</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    header {
-      background: linear-gradient(90deg, #007BFF, #0056b3);
-      color: white;
-      padding: 40px 0;
-      text-align: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    header h1 {
-      font-size: 3em;
-      margin: 0;
-    }
-    header p {
-      font-size: 1.2em;
-      margin-top: 10px;
-    }
-    .badges {
-      margin-top: 20px;
-    }
-    .badges img {
-      margin: 0 10px;
-    }
-    section {
-      margin: 40px 0;
-      padding: 20px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    h2 {
-      color: #007BFF;
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
-    h3 {
-      color: #0056b3;
-      font-size: 1.5em;
-      margin-top: 30px;
-    }
-    code {
-      background-color: #f4f4f4;
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-    }
-    pre {
-      background-color: #f4f4f4;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
-    .feature-list {
-      list-style-type: none;
-      padding: 0;
-    }
-    .feature-list li {
-      margin: 10px 0;
-      font-size: 1.1em;
-    }
-    .feature-list li::before {
-      content: '🚀';
-      margin-right: 10px;
-    }
-    .cli-example, .api-example {
-      margin: 20px 0;
-    }
-    .cli-example h4, .api-example h4 {
-      margin-bottom: 10px;
-      font-size: 1.2em;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #007BFF;
-      color: white;
-      margin-top: 40px;
-    }
-    footer a {
-      color: white;
-      text-decoration: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanet - Secure Network Communications Library</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-left: 3px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .feature {
+            margin: 20px 0;
+            padding-left: 20px;
+            border-left: 4px solid #2ecc71;
+        }
+        .security-feature {
+            background-color: #e8f4fc;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-  <header>
     <div class="container">
-      <h1>Lanet</h1>
-      <p>A lightweight, powerful LAN communication tool for Networking</p> 
-      <div class="badges">
-        <a href="https://badge.fury.io/rb/lanet"><img src="https://badge.fury.io/rb/lanet.svg" alt="Gem Version"></a>
-        <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
-      </div>
-    </div>
-  </header>
-
-  <div class="container">
-    <section id="about">
-      <h2>About Lanet</h2>
-      <p>Lanet is a lightweight and powerful LAN communication tool for Ruby that enables secure message exchange between devices on the same network. It simplifies peer-to-peer networking with built-in encryption, network discovery, and both targeted and broadcast messaging capabilities.</p>
-    </section>
-
-    <section id="features">
-      <h2>Features</h2>
-      <ul class="feature-list">
-        <li>Simple API - An intuitive Ruby interface for straightforward network communication.</li>
-        <li>Built-in encryption - Optional message encryption with AES-256-GCM for confidentiality.</li>
-        <li>Network scanning - Automatically discover active devices on your local network.</li>
-        <li>Targeted messaging - Send messages to specific IP addresses.</li>
-        <li>Broadcasting - Send messages to all devices on the network.</li>
-        <li>Host pinging - Check host availability and measure response times (with a familiar <code>ping</code> interface).</li>
-        <li>Command-line interface - Perform common network operations directly from your terminal.</li>
-        <li>Extensible - Easily build custom tools and integrations using the Lanet API.</li>
-        <li>Configurable - Adjust port settings, encryption keys, and network scan ranges.</li>
-      </ul>
-    </section>
-
-    <section id="installation">
-      <h2>Installation</h2>
-      <p>Add this line to your application's Gemfile:</p>
-      <pre><code>gem 'lanet'</code></pre>
-      <p>And then execute:</p>
-      <pre><code>bundle install</code></pre>
-      <p>Or install it yourself as:</p>
-      <pre><code>gem install lanet</code></pre>
-    </section>
-
-    <section id="usage">
-      <h2>Usage</h2>
-      <h3>Command Line Interface (CLI)</h3>
-      <div class="cli-example">
-        <h4>Scanning the network</h4>
-        <pre><code>lanet scan --range 192.168.1.0/24</code></pre>
-        <p>With verbose output (shows hostname, MAC address, open ports, and response time):</p>
-        <pre><code>lanet scan --range 192.168.1.0/24 --verbose</code></pre>
-      </div>
-      <div class="cli-example">
-        <h4>Sending a message to a specific target</h4>
-        <pre><code>lanet send --target 192.168.1.5 --message "Hello there!"</code></pre>
-        <p>Sending an encrypted message:</p>
-        <pre><code>lanet send --target 192.168.1.5 --message "Secret message" --key "my_secret_key"</code></pre>
-      </div>
-      <div class="cli-example">
-        <h4>Broadcasting a message to all devices</h4>
-        <pre><code>lanet broadcast --message "Announcement for everyone!"</code></pre>
-      </div>
-      <div class="cli-example">
-        <h4>Pinging a specific host</h4>
-        <pre><code>lanet ping --host 192.168.1.5</code></pre>
-      </div>
-
-      <h3>Ruby API</h3>
-      <div class="api-example">
-        <h4>Scanning the network</h4>
+        <h1>Lanet</h1>
+        <p>A secure network communication library for Ruby applications.</p>
+        
+        <h2>Key Features</h2>
+        
+        <div class="feature">
+            <h3>Encrypted Communication</h3>
+            <p>Protect your messages with military-grade AES-256-CBC encryption to ensure confidentiality.</p>
+        </div>
+        
+        <div class="feature">
+            <h3>Digital Signatures</h3>
+            <p>Verify message authenticity and integrity with RSA-based digital signatures.</p>
+            
+            <div class="security-feature">
+                <h4>Benefits of Digital Signatures:</h4>
+                <ul>
+                    <li><strong>Authentication</strong>: Verify that the message came from the claimed sender</li>
+                    <li><strong>Data Integrity</strong>: Ensure the message hasn't been tampered with during transit</li>
+                    <li><strong>Non-repudiation</strong>: Senders cannot deny sending a message they signed</li>
+                    <li><strong>Protection against MITM attacks</strong>: Detect man-in-the-middle tampering attempts</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="feature">
+            <h3>Simple UDP-based Messaging</h3>
+            <p>Send and receive messages easily with straightforward sender and receiver classes.</p>
+        </div>
+        
+        <div class="feature">
+            <h3>Network Broadcasting</h3>
+            <p>Support for broadcasting messages across your entire network.</p>
+        </div>
+        
+        <h2>Quick Example</h2>
+        
         <pre><code>require 'lanet'
 
-scanner = Lanet.scanner
-active_ips = scanner.scan('192.168.1.0/24')
-puts "Found devices: #{active_ips.join(', ')}"</code></pre>
-      </div>
-      <div class="api-example">
-        <h4>Sending a message</h4>
-        <pre><code>sender = Lanet.sender
-sender.send_to('192.168.1.5', 'Hello from Ruby!')</code></pre>
-        <p>Broadcasting a message:</p>
-        <pre><code>sender.broadcast('Announcement to all devices!')</code></pre>
-      </div>
-      <div class="api-example">
-        <h4>Listening for messages</h4>
-        <pre><code>receiver = Lanet.receiver
-receiver.listen do |data, ip|
-  puts "Received from #{ip}: #{data}"
+# Generate RSA key pair for signing
+key_pair = Lanet::Signer.generate_key_pair
+private_key = key_pair[:private_key]
+public_key = key_pair[:public_key]
+
+# Set up sender and receiver
+sender = Lanet::Sender.new(9000)
+encryption_key = "secret-key-123"
+
+# Send a signed and encrypted message
+message = "Hello, secure world!"
+prepared_message = Lanet::Encryptor.prepare_message(
+  message, 
+  encryption_key, 
+  private_key
+)
+sender.send_to("192.168.1.5", prepared_message)
+
+# Receive and verify messages
+receiver = Lanet::Receiver.new(9000)
+receiver.listen do |data, sender_ip|
+  result = Lanet::Encryptor.process_message(
+    data, 
+    encryption_key, 
+    public_key
+  )
+  
+  puts "Message: #{result[:content]}"
+  puts "Verified: #{result[:verified]}"
 end</code></pre>
-      </div>
-    </section>
-
-    <section id="configuration">
-      <h2>Configuration</h2>
-      <p>Lanet can be configured with several options:</p>
-      <ul>
-        <li><strong>Port</strong>: Default is 5000, but can be changed for both sending and receiving.</li>
-        <li><strong>Encryption Keys</strong>: Use your own encryption keys for secure communication.</li>
-        <li><strong>Custom Ranges</strong>: Scan specific network ranges to discover devices.</li>
-      </ul>
-    </section>
-
-    <section id="development">
-      <h2>Development</h2>
-      <p>After checking out the repo, run <code>bin/setup</code> to install dependencies. Then, run <code>rake spec</code> to run the tests.</p>
-      <p>To install this gem locally, run <code>bundle exec rake install</code>.</p>
-    </section>
-
-    <section id="contributing">
-      <h2>Contributing</h2>
-      <p>Bug reports and pull requests are welcome on GitHub at <a href="https://github.com/davidesantangelo/lanet">https://github.com/davidesantangelo/lanet</a>. Follow these steps:</p>
-      <ol>
-        <li>Fork the repository</li>
-        <li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
-        <li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
-        <li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
-        <li>Create a new Pull Request</li>
-      </ol>
-    </section>
-
-    <section id="license">
-      <h2>License</h2>
-      <p>The gem is available under the <a href="https://opensource.org/licenses/MIT">MIT License</a>.</p>
-    </section>
-  </div>
-
-  <footer>
-    <p>&copy; 2025 Lanet. All rights reserved. | <a href="https://github.com/davidesantangelo/lanet">View on GitHub</a></p>
-  </footer>
+        
+        <h2>Installation</h2>
+        
+        <p>Add this to your Gemfile:</p>
+        <pre><code>gem 'lanet'</code></pre>
+        
+        <p>Or install directly:</p>
+        <pre><code>gem install lanet</code></pre>
+        
+        <h2>Documentation</h2>
+        <p>For complete documentation, please visit the <a href="https://github.com/yourusername/lanet">GitHub repository</a>.</p>
+        
+        <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
+            <p>Lanet - Secure Network Communications Library</p>
+        </footer>
+    </div>
 </body>
 </html>

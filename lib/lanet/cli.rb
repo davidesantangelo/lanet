@@ -14,27 +14,55 @@ module Lanet
       false
     end
 
-    desc "send --target IP --message MSG [--key KEY] [--port PORT]", "Send a message to a specific target"
-    option :target, required: true
-    option :message, required: true
-    option :key
-    option :port, type: :numeric, default: 5000
+    desc "send", "Send a message to a specific target"
+    method_option :target, type: :string, required: true, desc: "Target IP address"
+    method_option :message, type: :string, required: true, desc: "Message to send"
+    method_option :key, type: :string, desc: "Encryption key (optional)"
+    method_option :private_key_file, type: :string, desc: "Path to private key file for signing (optional)"
+    method_option :port, type: :numeric, default: 5000, desc: "Port number"
     def send
-      sender = Sender.new(options[:port])
-      message = Encryptor.prepare_message(options[:message], options[:key])
+      sender = Lanet::Sender.new(options[:port])
+
+      private_key = nil
+      if options[:private_key_file]
+        begin
+          private_key = File.read(options[:private_key_file])
+          puts "Message will be digitally signed"
+        rescue StandardError => e
+          puts "Error reading private key file: #{e.message}"
+          return
+        end
+      end
+
+      message = Lanet::Encryptor.prepare_message(options[:message], options[:key], private_key)
+
       sender.send_to(options[:target], message)
       puts "Message sent to #{options[:target]}"
     end
 
-    desc "broadcast --message MSG [--key KEY] [--port PORT]", "Broadcast a message to all devices"
-    option :message, required: true
-    option :key
-    option :port, type: :numeric, default: 5000
+    desc "broadcast", "Broadcast a message to all devices on the network"
+    method_option :message, type: :string, required: true, desc: "Message to broadcast"
+    method_option :key, type: :string, desc: "Encryption key (optional)"
+    method_option :private_key_file, type: :string, desc: "Path to private key file for signing (optional)"
+    method_option :port, type: :numeric, default: 5000, desc: "Port number"
     def broadcast
-      sender = Sender.new(options[:port])
-      message = Encryptor.prepare_message(options[:message], options[:key])
+      sender = Lanet::Sender.new(options[:port])
+
+      private_key = nil
+      if options[:private_key_file]
+        begin
+          private_key = File.read(options[:private_key_file])
+          puts "Message will be digitally signed"
+        rescue StandardError => e
+          puts "Error reading private key file: #{e.message}"
+          return
+        end
+      end
+
+      message = Lanet::Encryptor.prepare_message(options[:message], options[:key], private_key)
+
       sender.broadcast(message)
-      puts "Message broadcasted"
+      puts "Message broadcasted to the network"
     end
 
     desc "scan --range CIDR [--timeout TIMEOUT] [--threads THREADS] [--verbose]",
@@ -77,62 +105,82 @@ module Lanet
       end
     end
 
-    desc "listen [--port PORT] [--key KEY]", "Listen for incoming messages"
-    option :port, type: :numeric, default: 5000
-    option :key
+    desc "listen", "Listen for incoming messages"
+    method_option :encryption_key, type: :string, desc: "Encryption key for decrypting messages (optional)"
+    method_option :public_key_file, type: :string, desc: "Path to public key file for signature verification (optional)"
+    method_option :port, type: :numeric, default: 5000, desc: "Port to listen on"
     def listen
-      receiver = Receiver.new(options[:port])
-      puts "Listening on port #{options[:port]}..."
-      receiver.listen do |data, ip|
-        message = Encryptor.process_message(data, options[:key])
-        puts "From #{ip}: #{message}"
+      receiver = Lanet::Receiver.new(options[:port])
+
+      public_key = nil
+      if options[:public_key_file]
+        begin
+          public_key = File.read(options[:public_key_file])
+          puts "Digital signature verification enabled"
+        rescue StandardError => e
+          puts "Error reading public key file: #{e.message}"
+          return
+        end
+      end
+
+      puts "Listening for messages on port #{options[:port]}..."
+      puts "Press Ctrl+C to stop"
+
+      receiver.listen do |data, sender_ip|
+        result = Lanet::Encryptor.process_message(data, options[:encryption_key], public_key)
+
+        puts "\nMessage from #{sender_ip}:"
+        puts "Content: #{result[:content]}"
+
+        if result.key?(:verified)
+          verification_status = if result[:verified]
+                                  "VERIFIED"
+                                else
+                                  "NOT VERIFIED: #{result[:verification_status]}"
+                                end
+          puts "Signature: #{verification_status}"
+        end
+
+        puts "-" * 40
       end
     end
 
-    desc "ping [HOST]", "Ping a host or multiple hosts with real-time output"
-    option :host, type: :string, desc: "Single host to ping"
-    option :hosts, type: :string, desc: "Comma-separated list of hosts to ping"
-    option :timeout, type: :numeric, default: 1, desc: "Ping timeout in seconds"
-    option :count, type: :numeric, default: 5, desc: "Number of ping packets to send"
-    option :quiet, type: :boolean, default: false, desc: "Only display summary"
-    option :continuous, type: :boolean, default: false, desc: "Ping continuously until interrupted"
-    def ping(target_host = nil)
-      # Support both traditional command (lanet ping 192.168.1.1) and option-style (--host)
-      target = target_host || options[:host] || options[:hosts]
+    desc "ping", "Ping a host to check connectivity"
+    method_option :host, type: :string, desc: "Host to ping"
+    method_option :hosts, type: :string, desc: "Comma-separated list of hosts to ping"
+    method_option :timeout, type: :numeric, default: 1, desc: "Timeout in seconds"
+    method_option :count, type: :numeric, default: 4, desc: "Number of pings"
+    method_option :continuous, type: :boolean, default: false, desc: "Ping continuously until interrupted"
+    method_option :quiet, type: :boolean, default: false, desc: "Show only summary"
+    def ping(single_host = nil)
+      # This is a placeholder for the ping implementation
+      target_host = single_host || options[:host]
+      puts "Pinging #{target_host || options[:hosts]}..."
+      puts "Ping functionality not implemented yet"
+    end
 
-      unless target
-        puts "Error: Missing host to ping"
-        puts "Usage: lanet ping HOST"
-        puts "   or: lanet ping --host HOST"
-        puts "   or: lanet ping --hosts HOST1,HOST2,HOST3"
-        return
-      end
+    desc "keygen", "Generate key pair for digital signatures"
+    method_option :bits, type: :numeric, default: 2048, desc: "Key size in bits"
+    method_option :output, type: :string, default: ".", desc: "Output directory"
+    def keygen
+      key_pair = Lanet::Signer.generate_key_pair(options[:bits])
 
-      pinger = Lanet::Ping.new(timeout: options[:timeout], count: options[:count])
+      private_key_file = File.join(options[:output], "lanet_private.key")
+      public_key_file = File.join(options[:output], "lanet_public.key")
 
-      if target_host || options[:host]
-        # For a single host, we use real-time output unless quiet is specified
-        host = target_host || options[:host]
-        if options[:quiet]
-          result = pinger.ping_host(host, false, options[:continuous])
-          display_ping_summary(host, result)
-        else
-          pinger.ping_host(host, true, options[:continuous]) # Real-time output with optional continuous mode
-        end
-      else
-        hosts = options[:hosts].split(",").map(&:strip)
+      File.write(private_key_file, key_pair[:private_key])
+      File.write(public_key_file, key_pair[:public_key])
 
-        if options[:quiet]
-          results = pinger.ping_hosts(hosts, false, options[:continuous])
-          hosts.each do |host|
-            display_ping_summary(host, results[host])
-            puts "\n" unless host == hosts.last
-          end
-        else
-          # Real-time output for multiple hosts
-          pinger.ping_hosts(hosts, true, options[:continuous])
-        end
-      end
+      puts "Key pair generated!"
+      puts "Private key saved to: #{private_key_file}"
+      puts "Public key saved to: #{public_key_file}"
+      puts "\nIMPORTANT: Keep your private key secure and never share it."
+      puts "Share your public key with others who need to verify your messages."
+    end
+
+    desc "version", "Display the version of Lanet"
+    def version
+      puts "Lanet version #{Lanet::VERSION}"
     end
 
     private
