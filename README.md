@@ -1,9 +1,10 @@
 # Lanet
 
-[![Gem Version](https://badge.fury.io/rb/lanet.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/lanet)
+![Gem Version](https://img.shields.io/gem/v/lanet?style=flat)
+![Gem Total Downloads](https://img.shields.io/gem/dt/lanet?style=flat)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A lightweight, powerful LAN communication tool for Ruby that enables secure message exchange between devices on the same network. Lanet makes peer-to-peer networking simple with built-in encryption, network discovery, and both targeted and broadcast messaging capabilities.
+A lightweight, powerful LAN communication tool that enables secure message exchange between devices on the same network. Lanet makes peer-to-peer networking simple with built-in encryption, network discovery, and both targeted and broadcast messaging capabilities.
 
 ## Features
 
