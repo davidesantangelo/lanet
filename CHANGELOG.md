@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2025-03-08
+## [0.2.1] - 2025-03-07
+
+### Fixed
+- Fixed thread handling in Scanner class to properly handle thread termination
+- Improved test coverage for thread management in scanner specs
+- Resolved issue with ARP updater thread cleanup
+
+## [0.2.0] - 2025-03-07
 
 ### Added
 - Digital signature support for message authentication and integrity

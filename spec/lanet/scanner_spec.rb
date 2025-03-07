@@ -132,9 +132,6 @@ RSpec.describe Lanet::Scanner do
     it "uses the specified timeout for port scans" do
       custom_timeout = 0.5
 
-      # This test needs modification to match what the method actually does
-      # Since the method directly sets @timeout = timeout, not uses instance_variable_set
-
       # Call the scan method with a small IP range
       scanner.scan("192.168.1.1/30", custom_timeout)
 
@@ -149,7 +146,11 @@ RSpec.describe Lanet::Scanner do
       # Mock thread creation and queue processing
       thread_mock = instance_double(Thread)
       allow(thread_mock).to receive(:join)
-      expect(Thread).to receive(:new).exactly(max_threads).times.and_return(thread_mock)
+      allow(thread_mock).to receive(:alive?).and_return(true, false)
+      allow(thread_mock).to receive(:kill) # Add this line to allow the kill method to be called
+
+      # Expect max_threads worker threads plus one arp_updater thread
+      expect(Thread).to receive(:new).exactly(max_threads + 1).times.and_return(thread_mock)
 
       scanner.scan(ip_range, 1, max_threads)
     end
