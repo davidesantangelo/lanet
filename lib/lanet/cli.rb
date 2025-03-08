@@ -178,6 +178,101 @@ module Lanet
       puts "Share your public key with others who need to verify your messages."
     end
 
+    desc "send-file", "Send a file to a specific target"
+    option :target, type: :string, required: true, desc: "Target IP address"
+    option :file, type: :string, required: true, desc: "File to send"
+    option :key, type: :string, desc: "Encryption key (optional)"
+    option :private_key_file, type: :string, desc: "Path to private key file for signing (optional)"
+    option :port, type: :numeric, default: 5001, desc: "Port number"
+    def send_file
+      unless File.exist?(options[:file]) && File.file?(options[:file])
+        puts "Error: File not found or is not a regular file: #{options[:file]}"
+        return
+      end
+
+      private_key = nil
+      if options[:private_key_file]
+        begin
+          private_key = File.read(options[:private_key_file])
+          puts "File will be digitally signed"
+        rescue StandardError => e
+          puts "Error reading private key file: #{e.message}"
+          return
+        end
+      end
+
+      file_transfer = Lanet::FileTransfer.new(options[:port])
+
+      puts "Sending file #{File.basename(options[:file])} to #{options[:target]}..."
+      puts "File size: #{File.size(options[:file])} bytes"
+
+      begin
+        file_transfer.send_file(
+          options[:target],
+          options[:file],
+          options[:key],
+          private_key
+        ) do |progress, bytes, total|
+          # Update progress bar
+          print "\rProgress: #{progress}% (#{bytes}/#{total} bytes)"
+        end
+
+        puts "\nFile sent successfully!"
+      rescue Lanet::FileTransfer::Error => e
+        puts "\nError: #{e.message}"
+      end
+    end
+
+    desc "receive-file", "Listen for incoming files"
+    option :output, type: :string, default: "./received", desc: "Output directory for received files"
+    option :encryption_key, type: :string, desc: "Encryption key (optional)"
+    option :public_key_file, type: :string, desc: "Path to public key file for verification (optional)"
+    option :port, type: :numeric, default: 5001, desc: "Port number"
+    def receive_file
+      public_key = nil
+      if options[:public_key_file]
+        begin
+          public_key = File.read(options[:public_key_file])
+          puts "Digital signature verification enabled"
+        rescue StandardError => e
+          puts "Error reading public key file: #{e.message}"
+          return
+        end
+      end
+
+      output_dir = File.expand_path(options[:output])
+      FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir)
+
+      puts "Listening for incoming files on port #{options[:port]}..."
+      puts "Files will be saved to #{output_dir}"
+      puts "Press Ctrl+C to stop"
+
+      file_transfer = Lanet::FileTransfer.new(options[:port])
+
+      begin
+        file_transfer.receive_file(
+          output_dir,
+          options[:encryption_key],
+          public_key
+        ) do |event, data|
+          case event
+          when :start
+            puts "\nReceiving file: #{data[:file_name]} from #{data[:sender_ip]}"
+            puts "Size: #{data[:file_size]} bytes"
+            puts "Transfer ID: #{data[:transfer_id]}"
+          when :progress
+            print "\rProgress: #{data[:progress]}% (#{data[:bytes_received]}/#{data[:total_bytes]} bytes)"
+          when :complete
+            puts "\nFile received and saved to: #{data[:file_path]}"
+          when :error
+            puts "\nError during file transfer: #{data[:error]}"
+          end
+        end
+      rescue Interrupt
+        puts "\nFile receiver stopped."
+      end
+    end
+
     desc "version", "Display the version of Lanet"
     def version
       puts "Lanet version #{Lanet::VERSION}"
@@ -258,20 +353,6 @@ module Lanet
 
       puts "\nOutput:"
       puts result[:output]
-    end
-
-    # Override method_missing to provide helpful error messages for common mistakes
-    def method_missing(method, *args)
-      if method.to_s == "ping" && args.any?
-        invoke "ping", [], { host: args.first, timeout: options[:timeout], count: options[:count],
-                             quiet: options[:quiet], continuous: options[:continuous] }
-      else
-        super
-      end
-    end
-
-    def respond_to_missing?(method, include_private = false)
-      method.to_s == "ping" || super
     end
   end
 end

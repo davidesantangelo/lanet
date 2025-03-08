@@ -116,6 +116,159 @@ RSpec.describe Lanet::CLI do
     end
   end
 
+  describe "#send_file" do
+    it "sends a file" do
+      # Create a test file
+      test_file = Tempfile.new(["test", ".txt"])
+      test_file.write("Test content")
+      test_file.close
+
+      # Mock the file transfer
+      file_transfer_mock = instance_double(Lanet::FileTransfer)
+      allow(Lanet::FileTransfer).to receive(:new).and_return(file_transfer_mock)
+      allow(file_transfer_mock).to receive(:send_file)
+
+      output = capture_stdout do
+        cli.options = {
+          target: "192.168.1.5",
+          file: test_file.path,
+          key: "test-key",
+          private_key_file: nil,
+          port: 5001
+        }
+        cli.send_file
+      end
+
+      expect(file_transfer_mock).to have_received(:send_file).with(
+        "192.168.1.5",
+        test_file.path,
+        "test-key",
+        nil
+      )
+      expect(output).to include("Sending file")
+
+      test_file.unlink
+    end
+
+    it "handles invalid file path" do
+      output = capture_stdout do
+        cli.options = {
+          target: "192.168.1.5",
+          file: "/non/existent/file.txt",
+          key: "test-key",
+          private_key_file: nil,
+          port: 5001
+        }
+        cli.send_file
+      end
+
+      expect(output).to include("Error: File not found")
+    end
+
+    it "sends a signed file" do
+      # Create a test file
+      test_file = Tempfile.new(["test", ".txt"])
+      test_file.write("Test content")
+      test_file.close
+
+      # Create a private key file
+      key_file = Tempfile.new(["private_key", ".key"])
+      key_file.write("test-private-key")
+      key_file.close
+
+      # Mock the file transfer
+      file_transfer_mock = instance_double(Lanet::FileTransfer)
+      allow(Lanet::FileTransfer).to receive(:new).and_return(file_transfer_mock)
+      allow(file_transfer_mock).to receive(:send_file)
+
+      output = capture_stdout do
+        cli.options = {
+          target: "192.168.1.5",
+          file: test_file.path,
+          key: "test-key",
+          private_key_file: key_file.path,
+          port: 5001
+        }
+        cli.send_file
+      end
+
+      expect(file_transfer_mock).to have_received(:send_file).with(
+        "192.168.1.5",
+        test_file.path,
+        "test-key",
+        "test-private-key"
+      )
+      expect(output).to include("File will be digitally signed")
+
+      test_file.unlink
+      key_file.unlink
+    end
+  end
+
+  describe "#receive_file" do
+    it "listens for incoming files" do
+      output_dir = Dir.mktmpdir
+
+      # Mock the file transfer
+      file_transfer_mock = instance_double(Lanet::FileTransfer)
+      allow(Lanet::FileTransfer).to receive(:new).and_return(file_transfer_mock)
+      allow(file_transfer_mock).to receive(:receive_file).and_raise(Interrupt) # To exit the loop
+
+      output = capture_stdout do
+        cli.options = {
+          output: output_dir,
+          encryption_key: "test-key",
+          public_key_file: nil,
+          port: 5001
+        }
+        cli.receive_file
+      end
+
+      expect(file_transfer_mock).to have_received(:receive_file).with(
+        output_dir,
+        "test-key",
+        nil
+      )
+      expect(output).to include("Listening for incoming files")
+
+      FileUtils.remove_entry(output_dir)
+    end
+
+    it "listens for signed files" do
+      output_dir = Dir.mktmpdir
+
+      # Create a public key file
+      key_file = Tempfile.new(["public_key", ".key"])
+      key_file.write("test-public-key")
+      key_file.close
+
+      # Mock the file transfer
+      file_transfer_mock = instance_double(Lanet::FileTransfer)
+      allow(Lanet::FileTransfer).to receive(:new).and_return(file_transfer_mock)
+      allow(file_transfer_mock).to receive(:receive_file).and_raise(Interrupt) # To exit the loop
+
+      output = capture_stdout do
+        cli.options = {
+          output: output_dir,
+          encryption_key: "test-key",
+          public_key_file: key_file.path,
+          port: 5001
+        }
+        cli.receive_file
+      end
+
+      expect(file_transfer_mock).to have_received(:receive_file).with(
+        output_dir,
+        "test-key",
+        "test-public-key"
+      )
+      expect(output).to include("Digital signature verification enabled")
+
+      FileUtils.remove_entry(output_dir)
+      key_file.unlink
+    end
+  end
+
   describe "#listen" do
     # This is harder to test since it blocks in a loop
     # We'll just test that it initializes correctly

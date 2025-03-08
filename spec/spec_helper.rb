@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+ENV["RACK_ENV"] = "test"
+
+# Set a smaller chunk size for tests to avoid UDP message size limitations
+ENV["LANET_TEST_CHUNK_SIZE"] = "1024" # 1KB chunks for tests
+
 require "bundler/setup"
 require "lanet"
 

@@ -8,16 +8,17 @@ A lightweight, powerful LAN communication tool that enables secure message excha
 
 ## Features
 
-- 🚀 **Simple API** - An intuitive Ruby interface makes network communication straightforward.
-- 🔒 **Built-in encryption** - Optional message encryption with AES-256-GCM for confidentiality.
-- 🔍 **Network scanning** - Automatically discover active devices on your local network.
-- 📡 **Targeted messaging** - Send messages to specific IP addresses.
-- 📣 **Broadcasting** - Send messages to all devices on the network.
-- 🔔 **Host pinging** - Check host availability and measure response times (with a familiar `ping` interface).
-- 🖥️ **Command-line interface** - Perform common network operations directly from your terminal.
-- 🧩 **Extensible** - Easily build custom tools and integrations using the Lanet API.
-- ⚙️ **Configurable:**  Adjust port settings, encryption keys, and network scan ranges.
+- **Simple API** - An intuitive Ruby interface makes network communication straightforward.
+- **Built-in encryption** - Optional message encryption with AES-256-GCM for confidentiality.
+- **Network scanning** - Automatically discover active devices on your local network.
+- **Targeted messaging** - Send messages to specific IP addresses.
+- **Broadcasting** - Send messages to all devices on the network.
+- **Host pinging** - Check host availability and measure response times (with a familiar `ping` interface).
+- **Command-line interface** - Perform common network operations directly from your terminal.
+- **Extensible** - Easily build custom tools and integrations using the Lanet API.
+- **Configurable:**  Adjust port settings, encryption keys, and network scan ranges.
 - **Digital Signatures**: Ensure message authenticity and integrity
+- **File Transfers**: Securely send encrypted files over the LAN with progress tracking and integrity verification
 
 ## Security Features
 
@@ -266,6 +267,40 @@ Ping multiple hosts continuously:
 lanet ping --hosts 192.168.1.5,192.168.1.6 --continuous
 ```
 
+#### Sending Files Securely
+
+Send files with encryption:
+
+```bash
+lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key"
+```
+
+Send files with encryption and digital signatures:
+
+```bash
+lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key" --private-key-file lanet_private.key
+```
+
+#### Receiving Files
+
+Listen for incoming files:
+
+```bash
+lanet receive-file --output ./downloads
+```
+
+Receive encrypted files:
+
+```bash
+lanet receive-file --output ./downloads --encryption-key "my_secret_key"
+```
+
+Receive encrypted files with signature verification:
+
+```bash
+lanet receive-file --output ./downloads --encryption-key "my_secret_key" --public-key-file lanet_public.key
+```
+
 ### Ruby API
 
 You can also use Lanet programmatically in your Ruby applications:
@@ -340,6 +375,24 @@ end
 
 # Ping multiple hosts continuously
 pinger.ping_hosts(['192.168.1.5', '192.168.1.6'], true, true)
+
+# Work with secure file transfers
+file_transfer = Lanet.file_transfer
+file_transfer.send_file('192.168.1.5', 'document.pdf', 'encryption_key') do |progress, bytes, total|
+  puts "Progress: #{progress}% (#{bytes}/#{total} bytes)"
+end
+
+# Receive files
+file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
+  case event
+  when :start
+    puts "Receiving file: #{data[:file_name]} from #{data[:sender_ip]}"
+  when :progress
+    puts "Progress: #{data[:progress]}%"
+  when :complete
+    puts "File saved to: #{data[:file_path]}"
+  end
+end
 ```
 
 ## Configuration
@@ -487,14 +540,106 @@ end
 # monitor.run_continuous_monitoring
 ```
 
-This system:
-- Scans the network to find all connected devices
-- Detects unknown devices and sends alerts
-- Continuously monitors critical devices like servers and network equipment
-- Alerts administrators when a device's status changes
-- Can be extended with additional notification methods
+## Use Case Example: Securely Sharing Files in a Team Environment
 
-You can set this up as a scheduled task or service to run continuously on a dedicated machine.
+This example demonstrates how to use Lanet's file transfer capabilities to securely share files within a team:
+
+```ruby
+require 'lanet'
+require 'fileutils'
+
+class SecureTeamFileSharing
+  def initialize(team_key, keys_dir = '~/.lanet_keys')
+    @team_key = team_key
+    @keys_dir = File.expand_path(keys_dir)
+    @transfer = Lanet.file_transfer
+    
+    # Ensure keys directory exists
+    FileUtils.mkdir_p(@keys_dir) unless Dir.exist?(@keys_dir)
+    
+    # Generate keys if they don't exist
+    unless File.exist?(private_key_path) && File.exist?(public_key_path)
+      puts "Generating new key pair for secure file sharing..."
+      key_pair = Lanet::Signer.generate_key_pair
+      File.write(private_key_path, key_pair[:private_key])
+      File.write(public_key_path, key_pair[:public_key])
+      puts "Keys generated successfully."
+    end
+    
+    # Load the private key
+    @private_key = File.read(private_key_path)
+  end
+  
+  def share_file(target_ip, file_path)
+    unless File.exist?(file_path)
+      puts "Error: File not found: #{file_path}"
+      return false
+    end
+    
+    puts "Sharing file: #{File.basename(file_path)} (#{File.size(file_path)} bytes)"
+    puts "Target: #{target_ip}"
+    puts "Security: Encrypted with team key and digitally signed"
+    
+    begin
+      @transfer.send_file(target_ip, file_path, @team_key, @private_key) do |progress, bytes, total|
+        print "\rProgress: #{progress}% (#{bytes}/#{total} bytes)"
+      end
+      puts "\nFile shared successfully!"
+      true
+    rescue StandardError => e
+      puts "\nError sharing file: #{e.message}"
+      false
+    end
+  end
+  
+  def start_receiver(output_dir = './shared_files')
+    FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir)
+    puts "Listening for incoming files..."
+    puts "Files will be saved to: #{output_dir}"
+    
+    @transfer.receive_file(output_dir, @team_key, File.read(public_key_path)) do |event, data|
+      case event
+      when :start
+        puts "\nIncoming file: #{data[:file_name]} from #{data[:sender_ip]}"
+        puts "Size: #{data[:file_size]} bytes"
+      when :progress
+        print "\rReceiving: #{data[:progress]}% complete"
+      when :complete
+        puts "\nFile received: #{data[:file_path]}"
+        puts "Signature verified: Authentic file from team member"
+      when :error
+        puts "\nError: #{data[:error]}"
+      end
+    end
+  end
+  
+  private
+  
+  def private_key_path
+    File.join(@keys_dir, 'team_private.key')
+  end
+  
+  def public_key_path
+    File.join(@keys_dir, 'team_public.key')
+  end
+end
+
+# Usage:
+# sharing = SecureTeamFileSharing.new("team-secret-key-123")
+#
+# To share a file:
+# sharing.share_file("192.168.1.5", "important_document.pdf")
+#
+# To receive files:
+# sharing.start_receiver("./team_files")
+```
+
+This example:
+- Creates a secure file sharing system with end-to-end encryption
+- Uses team-wide encryption key for confidentiality
+- Implements digital signatures to verify file authenticity
+- Provides real-time progress tracking for both sending and receiving files
+- Handles errors gracefully with user-friendly messages
 
 ## Development
 
