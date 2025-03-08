@@ -7,122 +7,155 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 960px;
-            margin: 0 auto;
+            line-height: 1.7; /* Increased line height for better readability */
+            color: #34495e; /* Darker, more professional text color */
+            max-width: 980px; /* Slightly wider max width for content */
+            margin: 20px auto; /* Added top and bottom margin for better spacing */
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #f4f6f9; /* Lighter background color */
         }
         h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            color: #34495e; /* Darker heading color */
+            border-bottom: 3px solid #3498db; /* Thicker border */
+            padding-bottom: 12px; /* Increased padding */
+            letter-spacing: -0.5px; /* Slightly tighter letter spacing for headings */
         }
         h2 {
-            color: #2980b9;
-            margin-top: 30px;
+            color: #3498db; /* Primary blue color for subheadings */
+            margin-top: 35px; /* Increased top margin */
+            margin-bottom: 10px; /* Added bottom margin */
         }
         h3 {
-            color: #16a085;
-            margin-top: 25px;
+            color: #2ecc71; /* Vibrant green for section titles */
+            margin-top: 30px;
+            margin-bottom: 8px;
         }
         h4 {
-            color: #27ae60;
-            margin-top: 20px;
+            color: #34495e; /* Darker color for sub-subheadings */
+            margin-top: 25px;
+            margin-bottom: 5px;
+        }
+        p {
+            margin-bottom: 15px; /* Increased paragraph spacing */
+            color: #555; /* Slightly softer paragraph text color */
+        }
+        ul, ol {
+            margin-bottom: 15px;
+            color: #555;
         }
         pre {
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-left: 3px solid #3498db;
-            padding: 15px;
+            background-color: #f0f0f0; /* Slightly darker pre background */
+            border: 1px solid #ccc; /* Lighter border */
+            border-left: 5px solid #3498db; /* Thicker, more prominent left border */
+            padding: 16px; /* Increased padding */
             overflow-x: auto;
-            border-radius: 4px;
+            border-radius: 6px; /* More rounded corners */
+            font-size: 0.95em; /* Slightly smaller font size in code blocks */
         }
         code {
             font-family: 'Courier New', Courier, monospace;
+            color: #2c3e50; /* Darker code text color */
         }
         .container {
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
+            border-radius: 10px; /* More rounded container corners */
+            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.08); /* Softer, more subtle shadow */
+            padding: 40px; /* Increased container padding */
         }
         .feature {
-            margin: 20px 0;
-            padding-left: 20px;
-            border-left: 4px solid #2ecc71;
+            margin: 25px 0; /* Increased feature margin */
+            padding-left: 25px; /* Increased padding */
+            border-left: 5px solid #2ecc71; /* Thicker feature border */
         }
         .security-feature {
             background-color: #e8f4fc;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 6px;
+            padding: 20px; /* Increased padding */
+            margin: 15px 0; /* Increased margin */
+            border-radius: 8px; /* More rounded corners */
+        }
+        .security-feature ul li {
+            margin-bottom: 8px; /* Spacing in security feature lists */
         }
         .cli-example {
             background-color: #2c3e50;
             color: #ecf0f1;
-            padding: 12px 18px;
-            margin: 10px 0;
-            border-radius: 6px;
+            padding: 15px 20px; /* Increased padding */
+            margin: 15px 0; /* Increased margin */
+            border-radius: 8px; /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             position: relative;
+            font-size: 0.95em; /* Slightly smaller font size in CLI examples */
         }
         .cli-example::before {
             content: "$";
             color: #3498db;
-            margin-right: 10px;
+            margin-right: 12px; /* Increased margin */
             font-weight: bold;
+            display: inline-block; /* Ensure proper spacing */
+            width: 15px; /* Fixed width for the dollar sign to align commands */
+            text-align: right; /* Align dollar sign to the right */
         }
         .cli-section {
-            margin-bottom: 30px;
+            margin-bottom: 40px; /* Increased bottom margin */
             background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 6px;
+            padding: 25px; /* Increased padding */
+            border-radius: 8px; /* More rounded corners */
         }
         .output-example {
             background-color: #f0f0f0;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 6px;
+            padding: 15px; /* Increased padding */
+            margin: 15px 0; /* Increased margin */
+            border-radius: 8px; /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.9em;
-            border-left: 3px solid #9b59b6;
+            border-left: 5px solid #9b59b6; /* Thicker border */
         }
         .tab-container {
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 8px; /* More rounded corners */
             overflow: hidden;
-            margin: 20px 0;
+            margin: 25px 0; /* Increased margin */
         }
         .tab-buttons {
             display: flex;
             background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd; /* Added bottom border to tab buttons container */
         }
         .tab-button {
-            padding: 10px 20px;
+            padding: 12px 25px; /* Increased padding */
             background-color: transparent;
             border: none;
             cursor: pointer;
-            border-right: 1px solid #ddd;
+            border-right: none; /* Removed right border */
             transition: background-color 0.3s;
+            font-weight: 500; /* Slightly bolder tab button text */
+            color: #777; /* Slightly muted tab button text color */
         }
-        .tab-button:hover, .tab-button.active {
-            background-color: #e0e0e0;
+        .tab-button:hover {
+            background-color: #f0f0f0; /* Lighter hover background */
+            color: #555; /* Darker hover text color */
+        }
+        .tab-button.active {
+            background-color: #fff; /* White background for active tab */
+            border-bottom: 3px solid #3498db; /* Underline for active tab */
+            color: #34495e; /* Darker text for active tab */
+            font-weight: bold; /* Bold text for active tab */
         }
         .tab-content {
             display: none;
-            padding: 15px;
+            padding: 20px; /* Increased padding */
+            background-color: #fff; /* White background for tab content */
         }
         .tab-content.active {
             display: block;
         }
         .badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 4px 10px; /* Increased badge padding */
+            border-radius: 6px; /* More rounded corners */
+            font-size: 13px; /* Slightly larger font size */
+            font-weight: 600; /* Bolder badge text */
+            letter-spacing: 0.5px; /* Added letter spacing */
         }
         .badge-new {
             background-color: #2ecc71;
@@ -130,10 +163,25 @@
         }
         .note {
             background-color: #fff8e1;
-            padding: 12px;
-            border-left: 4px solid #ffc107;
-            margin: 10px 0;
-            border-radius: 4px;
+            padding: 15px; /* Increased padding */
+            border-left: 5px solid #ffc107; /* Thicker border */
+            margin: 15px 0; /* Increased margin */
+            border-radius: 6px; /* More rounded corners */
+        }
+        .note strong {
+            font-weight: bold;
+            color: #333; /* Make "Note:" bold and slightly darker */
+        }
+        footer {
+            margin-top: 50px; /* Increased footer margin */
+            text-align: center;
+            color: #7f8c8d;
+            padding-top: 20px;
+            border-top: 1px solid #ddd; /* Added top border to footer */
+        }
+        footer p {
+            color: #95a5a6; /* Softer footer text color */
+            font-size: 0.9em; /* Smaller footer font size */
         }
     </style>
 </head>
@@ -141,18 +189,18 @@
     <div class="container">
         <h1>Lanet</h1>
         <p>A secure network communication library that enables reliable and protected message exchange between devices on the same network.</p>
-        
+
         <h2>Key Features</h2>
-        
+
         <div class="feature">
             <h3>Encrypted Communication</h3>
             <p>Protect your messages with AES-256-CBC encryption to ensure confidentiality during transmission.</p>
         </div>
-        
+
         <div class="feature">
             <h3>Digital Signatures <span class="badge badge-new">New in v0.2.1</span></h3>
             <p>Verify message authenticity and integrity with RSA-based digital signatures.</p>
-            
+
             <div class="security-feature">
                 <h4>Benefits of Digital Signatures:</h4>
                 <ul>
@@ -163,12 +211,12 @@
                 </ul>
             </div>
         </div>
-        
+
         <div class="feature">
             <h3>Network Discovery</h3>
             <p>Automatically find active devices on your local network with advanced scanning capabilities.</p>
         </div>
-        
+
         <div class="feature">
             <h3>Broadcasting</h3>
             <p>Send messages to all devices on your network simultaneously.</p>
@@ -184,21 +232,21 @@
         <div class="note">
             <strong>Note:</strong> All Lanet commands have detailed help available. Try <code>lanet [command] --help</code> for more options.
         </div>
-        
+
         <div class="cli-section">
             <h3>Digital Signature Commands <span class="badge badge-new">New in v0.2.1</span></h3>
-            
+
             <h4>Generate a Key Pair</h4>
             <p>Create RSA keys for signing and verifying messages:</p>
             <div class="cli-example">
                 lanet keygen
             </div>
-            
+
             <p>Generate keys with custom options:</p>
             <div class="cli-example">
                 lanet keygen --bits 4096 --output ~/.lanet_keys
             </div>
-            
+
             <div class="output-example">
 Key pair generated!
 Private key saved to: /home/user/.lanet_keys/lanet_private.key
@@ -207,32 +255,32 @@ Public key saved to: /home/user/.lanet_keys/lanet_public.key
 IMPORTANT: Keep your private key secure and never share it.
 Share your public key with others who need to verify your messages.
             </div>
-            
+
             <h4>Send a Signed Message</h4>
             <div class="cli-example">
                 lanet send --target 192.168.1.5 --message "Signed message" --private-key-file lanet_private.key
             </div>
-            
+
             <h4>Send a Signed & Encrypted Message</h4>
             <div class="cli-example">
                 lanet send --target 192.168.1.5 --message "Secure signed message" --key "my_secret_key" --private-key-file lanet_private.key
             </div>
-            
+
             <h4>Broadcast a Signed Message</h4>
             <div class="cli-example">
                 lanet broadcast --message "Important announcement" --private-key-file lanet_private.key
             </div>
-            
+
             <h4>Listen for and Verify Signed Messages</h4>
             <div class="cli-example">
                 lanet listen --public-key-file lanet_public.key
             </div>
-            
+
             <h4>Listen for Encrypted & Signed Messages</h4>
             <div class="cli-example">
                 lanet listen --encryption-key "my_secret_key" --public-key-file lanet_public.key
             </div>
-            
+
             <p>Example output when receiving a signed message:</p>
             <div class="output-example">
 Message from 192.168.1.5:
@@ -244,27 +292,27 @@ Signature: ✓ VERIFIED
 
         <div class="cli-section">
             <h3>Basic Message Commands</h3>
-            
+
             <h4>Send a Message</h4>
             <div class="cli-example">
                 lanet send --target 192.168.1.5 --message "Hello there!"
             </div>
-            
+
             <h4>Send an Encrypted Message</h4>
             <div class="cli-example">
                 lanet send --target 192.168.1.5 --message "Secret message" --key "my_secret_key"
             </div>
-            
+
             <h4>Broadcast a Message</h4>
             <div class="cli-example">
                 lanet broadcast --message "Announcement for everyone!"
             </div>
-            
+
             <h4>Listen for Messages</h4>
             <div class="cli-example">
                 lanet listen
             </div>
-            
+
             <h4>Listen for Encrypted Messages</h4>
             <div class="cli-example">
                 lanet listen --encryption-key "my_secret_key"
@@ -273,27 +321,27 @@ Signature: ✓ VERIFIED
 
         <div class="cli-section">
             <h3>Network Discovery Commands</h3>
-            
+
             <h4>Scan Network</h4>
             <div class="cli-example">
                 lanet scan --range 192.168.1.0/24
             </div>
-            
+
             <h4>Detailed Network Scan</h4>
             <div class="cli-example">
                 lanet scan --range 192.168.1.0/24 --verbose --threads 16 --timeout 2
             </div>
-            
+
             <h4>Ping a Host</h4>
             <div class="cli-example">
                 lanet ping 192.168.1.5
             </div>
-            
+
             <h4>Continuous Ping</h4>
             <div class="cli-example">
                 lanet ping 192.168.1.5 --continuous
             </div>
-            
+
             <h4>Ping Multiple Hosts</h4>
             <div class="cli-example">
                 lanet ping --hosts 192.168.1.5,192.168.1.6,192.168.1.7 --count 5
@@ -302,28 +350,28 @@ Signature: ✓ VERIFIED
 
         <div class="cli-section">
             <h3>File Transfer Commands <span class="badge badge-new">New in v0.3.0</span></h3>
-            
+
             <h4>Send a File</h4>
             <p>Send a file with encryption:</p>
             <div class="cli-example">
                 lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key"
             </div>
-            
+
             <p>Send a file with encryption and digital signature:</p>
             <div class="cli-example">
                 lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key" --private-key-file lanet_private.key
             </div>
-            
+
             <h4>Receive Files</h4>
             <div class="cli-example">
                 lanet receive-file --output ./downloads --encryption-key "my_secret_key"
             </div>
-            
+
             <p>With signature verification:</p>
             <div class="cli-example">
                 lanet receive-file --output ./downloads --encryption-key "my_secret_key" --public-key-file lanet_public.key
             </div>
-            
+
             <p>Example output during file transfer:</p>
             <div class="output-example">
 Receiving file: document.pdf from 192.168.1.5
@@ -332,7 +380,7 @@ Transfer ID: 8a7b6c5d-4e3f-2g1h-0i9j-8k7l6m5n4o3p
 Progress: 75% (786432/1048576 bytes)
             </div>
         </div>
-        
+
         <h2>Ruby Code Examples</h2>
 
         <div class="tab-container">
@@ -342,7 +390,7 @@ Progress: 75% (786432/1048576 bytes)
                 <button class="tab-button" onclick="openTab(event, 'tab-advanced')">Advanced Usage</button>
                 <button class="tab-button" onclick="openTab(event, 'tab-filetransfer')">File Transfer</button>
             </div>
-            
+
             <div id="tab-basic" class="tab-content active">
                 <pre><code>require 'lanet'
 
@@ -361,7 +409,7 @@ encrypted = Lanet::Encryptor.prepare_message('Secret message', 'my_encryption_ke
 # Send the encrypted message
 sender.send_to('192.168.1.5', encrypted)</code></pre>
             </div>
-            
+
             <div id="tab-signatures" class="tab-content">
                 <pre><code>require 'lanet'
 
@@ -377,8 +425,8 @@ encryption_key = "secret-key-123"
 # Send a signed and encrypted message
 message = "Hello, secure world!"
 prepared_message = Lanet::Encryptor.prepare_message(
-  message, 
-  encryption_key, 
+  message,
+  encryption_key,
   private_key
 )
 sender.send_to("192.168.1.5", prepared_message)
@@ -387,17 +435,17 @@ sender.send_to("192.168.1.5", prepared_message)
 receiver = Lanet::Receiver.new(9000)
 receiver.listen do |data, sender_ip|
   result = Lanet::Encryptor.process_message(
-    data, 
-    encryption_key, 
+    data,
+    encryption_key,
     public_key
   )
-  
+
   puts "Message: #{result[:content]}"
   puts "Verified: #{result[:verified]}"
   puts "Verification status: #{result[:verification_status]}"
 end</code></pre>
             </div>
-            
+
             <div id="tab-advanced" class="tab-content">
                 <pre><code>require 'lanet'
 
@@ -408,7 +456,7 @@ active_hosts = scanner.scan('192.168.1.0/24', 1, 32, true)
 active_hosts.each do |host|
   puts "Host: #{host[:ip]}, Hostname: #{host[:hostname]}"
   puts "Response time: #{host[:response_time]}ms"
-  
+
   if host[:ports]
     puts "Open ports:"
     host[:ports].each do |port, service|
@@ -427,8 +475,8 @@ puts "Response time: #{result[:response_time]}ms"
 encryption_key = "network-shared-key"
 message = "Important system notification"
 signed_message = Lanet::Encryptor.prepare_message(
-  message, 
-  encryption_key, 
+  message,
+  encryption_key,
   private_key
 )
 sender.broadcast(signed_message)</code></pre>
@@ -475,37 +523,37 @@ file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
 end</code></pre>
             </div>
         </div>
-        
+
         <h2>Installation</h2>
-        
+
         <p>Add this to your Gemfile:</p>
         <pre><code>gem 'lanet'</code></pre>
-        
+
         <p>Or install directly:</p>
         <pre><code>gem install lanet</code></pre>
-        
+
         <h2>Documentation</h2>
         <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub repository</a>.</p>
-        
+
         <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet v0.2.1 - Secure Network Communications Library</p>
+            <p>Lanet v0.3.0 - Secure Network Communications Library</p>
         </footer>
     </div>
 
     <script>
         function openTab(evt, tabName) {
             var i, tabContent, tabButtons;
-            
+
             tabContent = document.getElementsByClassName("tab-content");
             for (i = 0; i < tabContent.length; i++) {
                 tabContent[i].className = tabContent[i].className.replace(" active", "");
             }
-            
+
             tabButtons = document.getElementsByClassName("tab-button");
             for (i = 0; i < tabButtons.length; i++) {
                 tabButtons[i].className = tabButtons[i].className.replace(" active", "");
             }
-            
+
             document.getElementById(tabName).className += " active";
             evt.currentTarget.className += " active";
         }
