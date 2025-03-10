@@ -278,6 +278,94 @@ module Lanet
       puts "Lanet version #{Lanet::VERSION}"
     end
 
+    desc "mesh start", "Start a mesh network node"
+    option :port, type: :numeric, default: 5050, desc: "Port for mesh communication"
+    option :max_hops, type: :numeric, default: 10, desc: "Maximum number of hops for message routing"
+    def mesh_start
+      mesh = Lanet::Mesh.new(options[:port], options[:max_hops])
+
+      puts "Starting mesh network node with ID: #{mesh.node_id}"
+      puts "Listening on port: #{options[:port]}"
+      puts "Press Ctrl+C to stop"
+
+      mesh.start
+
+      # Keep the process running
+      begin
+        loop do
+          sleep 1
+        end
+      rescue Interrupt
+        puts "\nStopping mesh network node..."
+        mesh.stop
+      end
+    end
+
+    desc "mesh send", "Send a message through the mesh network"
+    option :target, type: :string, required: true, desc: "Target node ID"
+    option :message, type: :string, required: true, desc: "Message to send"
+    option :key, type: :string, desc: "Encryption key (optional)"
+    option :private_key_file, type: :string, desc: "Path to private key file for signing (optional)"
+    option :port, type: :numeric, default: 5050, desc: "Port for mesh communication"
+    def mesh_send
+      mesh = Lanet::Mesh.new(options[:port])
+
+      private_key = nil
+      if options[:private_key_file]
+        begin
+          private_key = File.read(options[:private_key_file])
+          puts "Message will be digitally signed"
+        rescue StandardError => e
+          puts "Error reading private key file: #{e.message}"
+          return
+        end
+      end
+
+      # Initialize the mesh network
+      mesh.start
+
+      begin
+        message_id = mesh.send_message(
+          options[:target],
+          options[:message],
+          options[:key],
+          private_key
+        )
+
+        puts "Message sent through mesh network"
+        puts "Message ID: #{message_id}"
+      rescue Lanet::Mesh::Error => e
+        puts "Error sending mesh message: #{e.message}"
+      ensure
+        mesh.stop
+      end
+    end
+
+    desc "mesh info", "Display information about the mesh network"
+    option :port, type: :numeric, default: 5050, desc: "Port for mesh communication"
+    def mesh_info
+      mesh = Lanet::Mesh.new(options[:port])
+
+      # Load state if available
+      mesh.start
+
+      puts "Mesh Node ID: #{mesh.node_id}"
+      puts "\nConnected nodes:"
+
+      if mesh.connections.empty?
+        puts "  No direct connections"
+      else
+        mesh.connections.each do |node_id, info|
+          last_seen = Time.now.to_i - info[:last_seen]
+          puts "  #{node_id} (#{info[:ip]}, last seen #{last_seen}s ago)"
+        end
+      end
+
+      puts "\nMessage cache: #{mesh.message_cache.size} messages"
+
+      mesh.stop
+    end
+
     private
 
     def display_ping_details(host, result)

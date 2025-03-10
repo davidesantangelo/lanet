@@ -19,6 +19,7 @@ A lightweight, powerful LAN communication tool that enables secure message excha
 - **Configurable:**  Adjust port settings, encryption keys, and network scan ranges.
 - **Digital Signatures**: Ensure message authenticity and integrity
 - **File Transfers**: Securely send encrypted files over the LAN with progress tracking and integrity verification
+- **Mesh Networking**: Create resilient mesh networks for decentralized communication, enabling messages to be routed through multiple hops without central infrastructure
 
 ## Security Features
 
@@ -301,6 +302,38 @@ Receive encrypted files with signature verification:
 lanet receive-file --output ./downloads --encryption-key "my_secret_key" --public-key-file lanet_public.key
 ```
 
+#### Mesh Networking
+
+Create a decentralized mesh network where devices can communicate even without direct connectivity:
+
+```bash
+# Start a mesh network node
+lanet mesh start
+
+# Start a mesh network node with custom settings
+lanet mesh start --port 5050 --max-hops 15
+```
+
+Send messages through the mesh network:
+
+```bash
+# Send a message through the mesh network to a specific node ID
+lanet mesh send --target a1b2c3d4-5678-90ef-ghij --message "Hello Mesh Network"
+
+# Send an encrypted message through the mesh network
+lanet mesh send --target a1b2c3d4-5678-90ef-ghij --message "Secret mesh message" --key "secret-key"
+
+# Send a signed message through the mesh network
+lanet mesh send --target a1b2c3d4-5678-90ef-ghij --message "Authenticated mesh message" --private-key-file lanet_private.key
+```
+
+View information about your mesh network:
+
+```bash
+# Display information about mesh network connections
+lanet mesh info
+```
+
 ### Ruby API
 
 You can also use Lanet programmatically in your Ruby applications:
@@ -393,7 +426,41 @@ file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
     puts "File saved to: #{data[:file_path]}"
   end
 end
+
+# Mesh Networking
+mesh = Lanet.mesh_network
+mesh.start  # Start the mesh node and discovery service
+
+# Send a message through the mesh network
+mesh.send_message(target_node_id, "Hello through the mesh!", "optional-encryption-key")
+
+# Get info about mesh connections
+puts "Node ID: #{mesh.node_id}"
+puts "Connected to #{mesh.connections.size} nodes"
+mesh.connections.each do |node_id, info|
+  puts "  #{node_id} (#{info[:ip]})"
+end
+
+# Properly stop the mesh node
+mesh.stop
 ```
+
+## Mesh Network
+
+The mesh networking feature provides decentralized communication capabilities:
+
+- **Auto-discovery**: Nodes automatically find each other on the network
+- **Multi-hop routing**: Messages can be routed through intermediate nodes
+- **Self-healing**: Adapts to changing network conditions and lost connections
+- **Store and forward**: Messages persist until they can be delivered
+- **End-to-end security**: Messages remain encrypted across multiple hops
+- **Verification**: Digital signatures ensure message integrity through the mesh
+
+Ideal for:
+- IoT networks where devices may not have direct connectivity
+- Ad-hoc networks without fixed infrastructure
+- Networks requiring high resilience and redundancy
+- Applications needing peer-to-peer communication
 
 ## Configuration
 

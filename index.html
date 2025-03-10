@@ -227,6 +227,22 @@
             <p>Securely transfer files between devices with encryption, digital signatures, and integrity verification.</p>
         </div>
 
+        <div class="feature">
+            <h3>Mesh Networking <span class="badge badge-new">New in v0.4.0</span></h3>
+            <p>Create resilient, decentralized mesh networks that enable communication between devices even without direct connectivity.</p>
+            
+            <div class="security-feature">
+                <h4>Benefits of Mesh Networking:</h4>
+                <ul>
+                    <li><strong>Decentralization</strong>: No central server or infrastructure needed</li>
+                    <li><strong>Resilience</strong>: Messages can route around failed nodes or connections</li>
+                    <li><strong>Extended Range</strong>: Devices can communicate beyond direct connection range</li>
+                    <li><strong>Scalability</strong>: Network grows stronger with more participating nodes</li>
+                    <li><strong>Self-healing</strong>: Network automatically adapts to changing conditions</li>
+                </ul>
+            </div>
+        </div>
+
         <h2>Command Line Interface</h2>
 
         <div class="note">
@@ -381,6 +397,46 @@ Progress: 75% (786432/1048576 bytes)
             </div>
         </div>
 
+        <div class="cli-section">
+            <h3>Mesh Network Commands <span class="badge badge-new">New in v0.4.0</span></h3>
+
+            <h4>Start a Mesh Network Node</h4>
+            <div class="cli-example">
+                lanet mesh start
+            </div>
+
+            <h4>Start with Custom Settings</h4>
+            <div class="cli-example">
+                lanet mesh start --port 5050 --max-hops 15
+            </div>
+
+            <h4>Send a Message Through the Mesh</h4>
+            <div class="cli-example">
+                lanet mesh send --target a1b2c3d4-5678-90ef-ghij --message "Hello Mesh"
+            </div>
+
+            <h4>Send an Encrypted Mesh Message</h4>
+            <div class="cli-example">
+                lanet mesh send --target a1b2c3d4-5678-90ef-ghij --message "Secret mesh message" --key "secret-key"
+            </div>
+
+            <h4>View Mesh Network Information</h4>
+            <div class="cli-example">
+                lanet mesh info
+            </div>
+
+            <p>Example output when viewing mesh info:</p>
+            <div class="output-example">
+Mesh Node ID: 4f9a8b7c-6d5e-4f3e-2d1c-0b9a8b7c6d5e
+
+Connected nodes:
+  b1c2d3e4-f5g6-7h8i-9j0k-l1m2n3o4p5q6 (192.168.1.5, last seen 12s ago)
+  c5d4e3f2-g1h0-i9j8-k7l6-m5n4o3p2q1r0 (192.168.1.10, last seen 5s ago)
+
+Message cache: 24 messages
+            </div>
+        </div>
+
         <h2>Ruby Code Examples</h2>
 
         <div class="tab-container">
@@ -389,6 +445,7 @@ Progress: 75% (786432/1048576 bytes)
                 <button class="tab-button" onclick="openTab(event, 'tab-signatures')">Digital Signatures</button>
                 <button class="tab-button" onclick="openTab(event, 'tab-advanced')">Advanced Usage</button>
                 <button class="tab-button" onclick="openTab(event, 'tab-filetransfer')">File Transfer</button>
+                <button class="tab-button" onclick="openTab(event, 'tab-mesh')">Mesh Network</button>
             </div>
 
             <div id="tab-basic" class="tab-content active">
@@ -522,6 +579,53 @@ file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
   end
 end</code></pre>
             </div>
+
+            <div id="tab-mesh" class="tab-content">
+                <pre><code>require 'lanet'
+
+# Create and start a mesh network node
+mesh = Lanet.mesh_network
+mesh.start
+
+puts "Mesh node started with ID: #{mesh.node_id}"
+
+# Send a plain message through the mesh
+begin
+  message_id = mesh.send_message(
+    "target-node-id-here",
+    "Hello through the mesh network!"
+  )
+  puts "Message sent with ID: #{message_id}"
+rescue Lanet::Mesh::Error => e
+  puts "Message sending failed: #{e.message}"
+end
+
+# Send an encrypted and signed message
+encryption_key = "mesh-encryption-key"
+key_pair = Lanet::Signer.generate_key_pair
+private_key = key_pair[:private_key]
+
+begin
+  message_id = mesh.send_message(
+    "target-node-id-here",
+    "Secure mesh message",
+    encryption_key,
+    private_key
+  )
+  puts "Secure message sent with ID: #{message_id}"
+rescue Lanet::Mesh::Error => e
+  puts "Secure message sending failed: #{e.message}"
+end
+
+# Examine mesh connections
+puts "Connected to #{mesh.connections.size} nodes:"
+mesh.connections.each do |node_id, info|
+  puts "  • #{node_id} (#{info[:ip]}, last seen #{Time.now.to_i - info[:last_seen]}s ago)"
+end
+
+# Always stop the mesh node when done
+mesh.stop</code></pre>
+            </div>
         </div>
 
         <h2>Installation</h2>
@@ -536,7 +640,7 @@ end</code></pre>
         <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub repository</a>.</p>
 
         <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet v0.3.0 - Secure Network Communications Library</p>
+            <p>Lanet v0.4.0 - Secure Network Communications Library</p>
         </footer>
     </div>
 

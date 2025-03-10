@@ -9,7 +9,7 @@ RSpec.describe Lanet::FileTransfer do
   let(:test_file) do
     file = Tempfile.new(["test_file", ".txt"])
     file.write("This is test content for file transfer")
-    file.close
+    file.rewind # Rewind to the beginning instead of just flushing
     file
   end
   let(:target_ip) { "192.168.1.5" }
@@ -185,10 +185,17 @@ RSpec.describe Lanet::FileTransfer do
       header_message = Lanet::Encryptor.prepare_message("FH#{header_data}", encryption_key)
 
       # Set up socket to return header message then raise Interrupt
-      allow(@socket_mock).to receive(:recvfrom).and_return(
-        [header_message, ["AF_INET", 5555, "hostname", target_ip]],
-        proc { raise Interrupt }
-      )
+      # FIX: Use a counter-based approach instead of returning a proc
+      call_count = 0
+      allow(@socket_mock).to receive(:recvfrom) do |_|
+        call_count += 1
+        if call_count == 1
+          [header_message, ["AF_INET", 5555, "hostname", target_ip]]
+        else
+          sleep 0.1 # Give the processor a little time
+          raise Interrupt
+        end
+      end
 
       # Expect an acknowledgment to be sent
       expect(@sender_mock).to receive(:send_to) do |ip, message|
@@ -232,11 +239,20 @@ RSpec.describe Lanet::FileTransfer do
       header_message = Lanet::Encryptor.prepare_message("FH#{header_data}", encryption_key)
       chunk_message = Lanet::Encryptor.prepare_message("FC#{chunk_data}", encryption_key)
 
-      allow(@socket_mock).to receive(:recvfrom).and_return(
-        [header_message, ["AF_INET", 5555, "hostname", target_ip]],
-        [chunk_message, ["AF_INET", 5555, "hostname", target_ip]],
-        proc { raise Interrupt }
-      )
+      # FIX: Use a counter-based approach instead of returning a proc
+      call_count = 0
+      allow(@socket_mock).to receive(:recvfrom) do |_|
+        call_count += 1
+        case call_count
+        when 1
+          [header_message, ["AF_INET", 5555, "hostname", target_ip]]
+        when 2
+          [chunk_message, ["AF_INET", 5555, "hostname", target_ip]]
+          sleep 0.1 # Give the processor time to execute callbacks
+        else
+          raise Interrupt
+        end
+      end
 
       # Set up a test callback for progress
       progress_data = nil
@@ -288,17 +304,27 @@ RSpec.describe Lanet::FileTransfer do
       end_message = Lanet::Encryptor.prepare_message("FE#{end_data}", encryption_key)
 
       # Create a mock temp file that will actually write to a real file
-      # This is a bit tricky since we're testing file operations
       mock_tempfile = Tempfile.new(["test", ".txt"], output_dir)
       allow(Tempfile).to receive(:new).and_return(mock_tempfile)
 
-      # Set up socket messages
-      allow(@socket_mock).to receive(:recvfrom).and_return(
-        [header_message, ["AF_INET", 5555, "hostname", target_ip]],
-        [chunk_message, ["AF_INET", 5555, "hostname", target_ip]],
-        [end_message, ["AF_INET", 5555, "hostname", target_ip]],
-        proc { raise Interrupt }
-      )
+      # Set up socket messages with proper address information
+      mock_addr = ["AF_INET", 5555, "hostname", target_ip]
+
+      # Allow receive(:recvfrom) to return values first, then raise Interrupt
+      call_count = 0
+      allow(@socket_mock).to receive(:recvfrom) do |_|
+        call_count += 1
+        case call_count
+        when 1
+          [header_message, mock_addr]
+        when 2
+          [chunk_message, mock_addr]
+        when 3
+          [end_message, mock_addr]
+        else
+          raise Interrupt
+        end
+      end
 
       # Set up a test callback for completion
       complete_data = nil
@@ -348,13 +374,25 @@ RSpec.describe Lanet::FileTransfer do
       mock_tempfile = Tempfile.new(["test", ".txt"], output_dir)
       allow(Tempfile).to receive(:new).and_return(mock_tempfile)
 
-      # Set up socket messages
-      allow(@socket_mock).to receive(:recvfrom).and_return(
-        [header_message, ["AF_INET", 5555, "hostname", target_ip]],
-        [chunk_message, ["AF_INET", 5555, "hostname", target_ip]],
-        [end_message, ["AF_INET", 5555, "hostname", target_ip]],
-        proc { raise Interrupt }
-      )
+      # Set up proper mocks for recvfrom with address information
+      mock_addr = ["AF_INET", 5555, "hostname", target_ip]
+
+      # Allow receive(:recvfrom) to return values first, then raise Interrupt
+      call_count = 0
+      allow(@socket_mock).to receive(:recvfrom) do |_|
+        call_count += 1
+        case call_count
+        when 1
+          [header_message, mock_addr]
+        when 2
+          [chunk_message, mock_addr]
+          sleep 0.1 # Give the processor time to execute callbacks
+        when 3
+          [end_message, mock_addr]
+        else
+          raise Interrupt
+        end
+      end
 
       # Expect an error message to be sent
       expect(@sender_mock).to receive(:send_to).at_least(:twice) do |_ip, message|

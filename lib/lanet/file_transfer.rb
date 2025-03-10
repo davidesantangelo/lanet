@@ -122,7 +122,10 @@ module Lanet
     end
 
     ### Receive File Method
-    def receive_file(output_dir, encryption_key = nil, public_key = nil, progress_callback = nil)
+    def receive_file(output_dir, encryption_key = nil, public_key = nil, progress_callback = nil, &block)
+      # Use the block parameter if provided and progress_callback is nil
+      progress_callback = block if block_given? && progress_callback.nil?
+
       FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir)
       receiver = UDPSocket.new
       receiver.bind("0.0.0.0", @port)
@@ -131,6 +134,10 @@ module Lanet
       begin
         loop do
           data, addr = receiver.recvfrom(65_536) # Large buffer for chunks
+
+          # Skip if we received nil data or address
+          next if addr.nil? || data.nil?
+
           sender_ip = addr[3]
           result = Lanet::Encryptor.process_message(data, encryption_key, public_key)
           next unless result[:content]&.length&.> 2

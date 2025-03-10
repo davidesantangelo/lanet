@@ -8,6 +8,7 @@ require "lanet/encryptor"
 require "lanet/cli"
 require "lanet/ping"
 require "lanet/file_transfer"
+require "lanet/mesh"
 
 module Lanet
   class Error < StandardError; end
@@ -49,6 +50,11 @@ module Lanet
     # Add file transfer functionality
     def file_transfer(port = 5001)
       FileTransfer.new(port)
+    end
+
+    # Create a new mesh network instance
+    def mesh_network(port = 5050, max_hops = 10)
+      Mesh.new(port, max_hops)
     end
   end
 end
