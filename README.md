@@ -20,6 +20,7 @@ A lightweight, powerful LAN communication tool that enables secure message excha
 - **Digital Signatures**: Ensure message authenticity and integrity
 - **File Transfers**: Securely send encrypted files over the LAN with progress tracking and integrity verification
 - **Mesh Networking**: Create resilient mesh networks for decentralized communication, enabling messages to be routed through multiple hops without central infrastructure
+- **Advanced Traceroute**: Analyze network paths using multiple protocols (ICMP, UDP, and TCP)
 
 ## Security Features
 
@@ -334,6 +335,36 @@ View information about your mesh network:
 lanet mesh info
 ```
 
+#### Tracing the route to a target host
+
+Basic traceroute using UDP (default protocol):
+
+```bash
+# Simple format
+lanet traceroute google.com
+
+# Option format
+lanet traceroute --host google.com
+```
+
+Trace using ICMP protocol:
+
+```bash
+lanet traceroute --host google.com --protocol icmp
+```
+
+Trace using TCP protocol:
+
+```bash
+lanet traceroute --host google.com --protocol tcp --max-hops 15
+```
+
+Customize traceroute parameters:
+
+```bash
+lanet traceroute --host github.com --protocol tcp --max-hops 20 --timeout 2 --queries 4
+```
+
 ### Ruby API
 
 You can also use Lanet programmatically in your Ruby applications:
@@ -443,6 +474,17 @@ end
 
 # Properly stop the mesh node
 mesh.stop
+
+# Trace route to a host with different protocols
+tracer = Lanet.traceroute(protocol: :udp)
+hops = tracer.trace('github.com')
+hops.each do |hop|
+  puts "Hop #{hop[:ttl]}: #{hop[:ip]} - Response: #{hop[:avg_time]}ms"
+end
+
+# Use TCP protocol with custom parameters
+tcp_tracer = Lanet.traceroute(protocol: :tcp, max_hops: 15, timeout: 2)
+tcp_tracer.trace('google.com')
 ```
 
 ## Mesh Network

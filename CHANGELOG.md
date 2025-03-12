@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-03-12
+
+### Added
+- Advanced traceroute functionality for network path analysis
+- Multiple protocol support for traceroute: ICMP, UDP, and TCP
+- Load balancing detection in traceroute results
+- CLI command: `traceroute` with protocol selection and customizable parameters
+- Ruby API for programmatic traceroute operations
+- Comprehensive documentation and examples for traceroute feature
+
 ## [0.4.0] - 2025-03-10
 
 ### Added

@@ -9,6 +9,7 @@ require "lanet/cli"
 require "lanet/ping"
 require "lanet/file_transfer"
 require "lanet/mesh"
+require "lanet/traceroute"
 
 module Lanet
   class Error < StandardError; end
@@ -55,6 +56,11 @@ module Lanet
     # Create a new mesh network instance
     def mesh_network(port = 5050, max_hops = 10)
       Mesh.new(port, max_hops)
+    end
+
+    # Create a new traceroute instance
+    def traceroute(protocol: :udp, max_hops: 30, timeout: 1, queries: 3)
+      Traceroute.new(protocol: protocol, max_hops: max_hops, timeout: timeout, queries: queries)
     end
   end
 end

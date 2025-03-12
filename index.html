@@ -243,6 +243,22 @@
             </div>
         </div>
 
+        <div class="feature">
+            <h3>Advanced Traceroute <span class="badge badge-new">New in v0.5.0</span></h3>
+            <p>Analyze network paths with multi-protocol traceroute capabilities to understand connectivity and troubleshoot network issues.</p>
+            
+            <div class="security-feature">
+                <h4>Features of Advanced Traceroute:</h4>
+                <ul>
+                    <li><strong>Multi-protocol support</strong>: Use ICMP, UDP, or TCP protocols for different network environments</li>
+                    <li><strong>Load balancing detection</strong>: Identify multi-path routing and load balancers in the network</li>
+                    <li><strong>Response time analysis</strong>: Measure latency at each hop in the network path</li>
+                    <li><strong>Customizable parameters</strong>: Adjust max hops, timeouts, and query count for different scenarios</li>
+                    <li><strong>Hostname resolution</strong>: Automatically resolve IP addresses to hostnames for easier identification</li>
+                </ul>
+            </div>
+        </div>
+
         <h2>Command Line Interface</h2>
 
         <div class="note">
@@ -437,6 +453,48 @@ Message cache: 24 messages
             </div>
         </div>
 
+        <div class="cli-section">
+            <h3>Traceroute Commands <span class="badge badge-new">New in v0.5.0</span></h3>
+
+            <h4>Basic Traceroute (UDP protocol)</h4>
+            <div class="cli-example">
+                lanet traceroute --host google.com
+            </div>
+
+            <h4>Traceroute with ICMP Protocol</h4>
+            <div class="cli-example">
+                lanet traceroute --host google.com --protocol icmp
+            </div>
+
+            <h4>Traceroute with TCP Protocol</h4>
+            <div class="cli-example">
+                lanet traceroute --host github.com --protocol tcp
+            </div>
+
+            <h4>Customize Traceroute Parameters</h4>
+            <div class="cli-example">
+                lanet traceroute --host cloudflare.com --protocol tcp --max-hops 20 --timeout 2 --queries 4
+            </div>
+
+            <p>Example output of a traceroute:</p>
+            <div class="output-example">
+Tracing route to github.com using UDP protocol
+Maximum hops: 30, Timeout: 1s, Queries: 3
+======================================================================
+TTL  IP Address        Hostname                         Response Time
+----------------------------------------------------------------------
+  1  192.168.1.1       router.home                      2.34ms
+  2  172.16.42.1       isp-gateway.net                  8.72ms
+  3  216.58.223.14                                      15.35ms
+  4  172.217.170.78    edge-router.google.com           22.89ms
+  5  *                 *                                Request timed out
+  6  140.82.121.4      github.com                       45.23ms
+     Destination unreachable
+======================================================================
+Trace complete.
+            </div>
+        </div>
+
         <h2>Ruby Code Examples</h2>
 
         <div class="tab-container">
@@ -446,6 +504,7 @@ Message cache: 24 messages
                 <button class="tab-button" onclick="openTab(event, 'tab-advanced')">Advanced Usage</button>
                 <button class="tab-button" onclick="openTab(event, 'tab-filetransfer')">File Transfer</button>
                 <button class="tab-button" onclick="openTab(event, 'tab-mesh')">Mesh Network</button>
+                <button class="tab-button" onclick="openTab(event, 'tab-traceroute')">Traceroute</button>
             </div>
 
             <div id="tab-basic" class="tab-content active">
@@ -626,6 +685,51 @@ end
 # Always stop the mesh node when done
 mesh.stop</code></pre>
             </div>
+
+            <div id="tab-traceroute" class="tab-content">
+                <pre><code>require 'lanet'
+
+# Create a traceroute instance with UDP protocol (default)
+tracer = Lanet.traceroute
+results = tracer.trace('github.com')
+
+# Display the results
+puts "Path to github.com:"
+results.each do |hop|
+  if hop[:ip].nil?
+    puts "Hop #{hop[:ttl]}: * * * Request timed out"
+  else
+    hostname = hop[:hostname] ? hop[:hostname] : ""
+    time = hop[:avg_time] ? "#{hop[:avg_time]}ms" : "*"
+    puts "Hop #{hop[:ttl]}: #{hop[:ip]} (#{hostname}) #{time}"
+    
+    # Check for load balancing (multiple IPs at the same hop)
+    if hop[:all_ips] && hop[:all_ips].size > 1
+      puts "  Multiple IPs detected (load balancing):"
+      hop[:all_ips].each { |ip| puts "  - #{ip}" }
+    end
+  end
+end
+
+# Use ICMP protocol (may require root/admin privileges)
+begin
+  icmp_tracer = Lanet.traceroute(protocol: :icmp, max_hops: 10)
+  icmp_tracer.trace('google.com')
+rescue StandardError => e
+  puts "Error with ICMP traceroute: #{e.message}"
+end
+
+# Use TCP protocol with custom parameters
+tcp_tracer = Lanet.traceroute(protocol: :tcp, max_hops: 15, 
+                             timeout: 2, queries: 4)
+tcp_results = tcp_tracer.trace('cloudflare.com')
+
+# Analyze a specific hop
+interesting_hop = tcp_results[5] # Sixth hop
+if interesting_hop && interesting_hop[:unreachable]
+  puts "Destination unreachable at hop #{interesting_hop[:ttl]}"
+end</code></pre>
+            </div>
         </div>
 
         <h2>Installation</h2>
@@ -640,7 +744,7 @@ mesh.stop</code></pre>
         <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub repository</a>.</p>
 
         <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet v0.4.0 - Secure Network Communications Library</p>
+            <p>Lanet v0.5.0 - Secure Network Communications Library</p>
         </footer>
     </div>
 

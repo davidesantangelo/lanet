@@ -6,6 +6,7 @@ require "lanet/receiver"
 require "lanet/scanner"
 require "lanet/ping"
 require "lanet/encryptor"
+require "lanet/traceroute"
 
 module Lanet
   class CLI < Thor
@@ -364,6 +365,62 @@ module Lanet
       puts "\nMessage cache: #{mesh.message_cache.size} messages"
 
       mesh.stop
+    end
+
+    desc "traceroute [HOST]", "Trace the route to a target host using different protocols"
+    method_option :host, type: :string, desc: "Target host to trace route"
+    method_option :protocol, type: :string, default: "udp", desc: "Protocol to use (icmp, udp, tcp)"
+    method_option :max_hops, type: :numeric, default: 30, desc: "Maximum number of hops"
+    method_option :timeout, type: :numeric, default: 1, desc: "Timeout in seconds for each probe"
+    method_option :queries, type: :numeric, default: 3, desc: "Number of queries per hop"
+    def traceroute(single_host = nil)
+      # Use the positional parameter if provided, otherwise use the --host option
+      target_host = single_host || options[:host]
+
+      # Ensure we have a host to trace
+      unless target_host
+        puts "Error: No host specified. Please provide a host as an argument or use --host option."
+        return
+      end
+
+      tracer = Lanet::Traceroute.new(
+        protocol: options[:protocol].to_sym,
+        max_hops: options[:max_hops],
+        timeout: options[:timeout],
+        queries: options[:queries]
+      )
+
+      puts "Tracing route to #{target_host} using #{options[:protocol].upcase} protocol"
+      puts "Maximum hops: #{options[:max_hops]}, Timeout: #{options[:timeout]}s, Queries: #{options[:queries]}"
+      puts "=" * 70
+      puts format("%3s  %-15s  %-30s  %-10s", "TTL", "IP Address", "Hostname", "Response Time")
+      puts "-" * 70
+
+      tracer.trace(target_host).each do |hop|
+        if hop[:ip].nil?
+          puts format("%3d  %-15s  %-30s  %-10s", hop[:ttl], "*", "*", "Request timed out")
+        else
+          hostname = hop[:hostname] || ""
+          time_str = hop[:avg_time] ? "#{hop[:avg_time]}ms" : "*"
+          puts format("%3d  %-15s  %-30s  %-10s", hop[:ttl], hop[:ip], hostname, time_str)
+
+          # Show all IPs if there are multiple (for load balancing detection)
+          if hop[:all_ips] && hop[:all_ips].size > 1
+            puts "     Multiple IPs detected (possible load balancing):"
+            hop[:all_ips].each do |ip|
+              puts "     - #{ip}"
+            end
+          end
+
+          # Show unreachable marker
+          puts "     Destination unreachable" if hop[:unreachable]
+        end
+      end
+      puts "=" * 70
+      puts "Trace complete."
+    rescue StandardError => e
+      puts "Error performing traceroute: #{e.message}"
+      puts e.backtrace if options[:verbose]
     end
 
     private
