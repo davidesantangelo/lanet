@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-03-20
+
+### Changed
+- Optimized traceroute implementation for better performance and code readability
+- Simplified protocol selection logic with dedicated methods
+- Improved error handling for socket operations
+- Enhanced hostname extraction in traceroute results
+- Reorganized code structure for better maintainability
+- Added Windows-specific socket handling optimizations
+
+### Fixed
+- Fixed redundant code in socket handling for different operating systems
+- Improved error messages for unprivileged traceroute attempts
+- Fixed potential memory leaks in socket resource management
+- Added proper handling for non-standard traceroute output formats
+
 ## [0.5.0] - 2025-03-12
 
 ### Added

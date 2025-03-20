@@ -20,7 +20,7 @@ A lightweight, powerful LAN communication tool that enables secure message excha
 - **Digital Signatures**: Ensure message authenticity and integrity
 - **File Transfers**: Securely send encrypted files over the LAN with progress tracking and integrity verification
 - **Mesh Networking**: Create resilient mesh networks for decentralized communication, enabling messages to be routed through multiple hops without central infrastructure
-- **Advanced Traceroute**: Analyze network paths using multiple protocols (ICMP, UDP, and TCP)
+- **Advanced Traceroute**: Analyze network paths using multiple protocols (ICMP, UDP, and TCP) with intelligent fallback mechanisms
 
 ## Security Features
 

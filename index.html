@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,188 +8,297 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.7; /* Increased line height for better readability */
-            color: #34495e; /* Darker, more professional text color */
-            max-width: 980px; /* Slightly wider max width for content */
-            margin: 20px auto; /* Added top and bottom margin for better spacing */
+            line-height: 1.7;
+            /* Increased line height for better readability */
+            color: #34495e;
+            /* Darker, more professional text color */
+            max-width: 980px;
+            /* Slightly wider max width for content */
+            margin: 20px auto;
+            /* Added top and bottom margin for better spacing */
             padding: 20px;
-            background-color: #f4f6f9; /* Lighter background color */
+            background-color: #f4f6f9;
+            /* Lighter background color */
         }
+
         h1 {
-            color: #34495e; /* Darker heading color */
-            border-bottom: 3px solid #3498db; /* Thicker border */
-            padding-bottom: 12px; /* Increased padding */
-            letter-spacing: -0.5px; /* Slightly tighter letter spacing for headings */
+            color: #34495e;
+            /* Darker heading color */
+            border-bottom: 3px solid #3498db;
+            /* Thicker border */
+            padding-bottom: 12px;
+            /* Increased padding */
+            letter-spacing: -0.5px;
+            /* Slightly tighter letter spacing for headings */
         }
+
         h2 {
-            color: #3498db; /* Primary blue color for subheadings */
-            margin-top: 35px; /* Increased top margin */
-            margin-bottom: 10px; /* Added bottom margin */
+            color: #3498db;
+            /* Primary blue color for subheadings */
+            margin-top: 35px;
+            /* Increased top margin */
+            margin-bottom: 10px;
+            /* Added bottom margin */
         }
+
         h3 {
-            color: #2ecc71; /* Vibrant green for section titles */
+            color: #2ecc71;
+            /* Vibrant green for section titles */
             margin-top: 30px;
             margin-bottom: 8px;
         }
+
         h4 {
-            color: #34495e; /* Darker color for sub-subheadings */
+            color: #34495e;
+            /* Darker color for sub-subheadings */
             margin-top: 25px;
             margin-bottom: 5px;
         }
+
         p {
-            margin-bottom: 15px; /* Increased paragraph spacing */
-            color: #555; /* Slightly softer paragraph text color */
+            margin-bottom: 15px;
+            /* Increased paragraph spacing */
+            color: #555;
+            /* Slightly softer paragraph text color */
         }
-        ul, ol {
+
+        ul,
+        ol {
             margin-bottom: 15px;
             color: #555;
         }
+
         pre {
-            background-color: #f0f0f0; /* Slightly darker pre background */
-            border: 1px solid #ccc; /* Lighter border */
-            border-left: 5px solid #3498db; /* Thicker, more prominent left border */
-            padding: 16px; /* Increased padding */
+            background-color: #f0f0f0;
+            /* Slightly darker pre background */
+            border: 1px solid #ccc;
+            /* Lighter border */
+            border-left: 5px solid #3498db;
+            /* Thicker, more prominent left border */
+            padding: 16px;
+            /* Increased padding */
             overflow-x: auto;
-            border-radius: 6px; /* More rounded corners */
-            font-size: 0.95em; /* Slightly smaller font size in code blocks */
+            border-radius: 6px;
+            /* More rounded corners */
+            font-size: 0.95em;
+            /* Slightly smaller font size in code blocks */
         }
+
         code {
             font-family: 'Courier New', Courier, monospace;
-            color: #2c3e50; /* Darker code text color */
+            color: #2c3e50;
+            /* Darker code text color */
         }
+
         .container {
             background-color: #fff;
-            border-radius: 10px; /* More rounded container corners */
-            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.08); /* Softer, more subtle shadow */
-            padding: 40px; /* Increased container padding */
+            border-radius: 10px;
+            /* More rounded container corners */
+            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.08);
+            /* Softer, more subtle shadow */
+            padding: 40px;
+            /* Increased container padding */
         }
+
         .feature {
-            margin: 25px 0; /* Increased feature margin */
-            padding-left: 25px; /* Increased padding */
-            border-left: 5px solid #2ecc71; /* Thicker feature border */
+            margin: 25px 0;
+            /* Increased feature margin */
+            padding-left: 25px;
+            /* Increased padding */
+            border-left: 5px solid #2ecc71;
+            /* Thicker feature border */
         }
+
         .security-feature {
             background-color: #e8f4fc;
-            padding: 20px; /* Increased padding */
-            margin: 15px 0; /* Increased margin */
-            border-radius: 8px; /* More rounded corners */
+            padding: 20px;
+            /* Increased padding */
+            margin: 15px 0;
+            /* Increased margin */
+            border-radius: 8px;
+            /* More rounded corners */
         }
+
         .security-feature ul li {
-            margin-bottom: 8px; /* Spacing in security feature lists */
+            margin-bottom: 8px;
+            /* Spacing in security feature lists */
         }
+
         .cli-example {
             background-color: #2c3e50;
             color: #ecf0f1;
-            padding: 15px 20px; /* Increased padding */
-            margin: 15px 0; /* Increased margin */
-            border-radius: 8px; /* More rounded corners */
+            padding: 15px 20px;
+            /* Increased padding */
+            margin: 15px 0;
+            /* Increased margin */
+            border-radius: 8px;
+            /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             position: relative;
-            font-size: 0.95em; /* Slightly smaller font size in CLI examples */
+            font-size: 0.95em;
+            /* Slightly smaller font size in CLI examples */
         }
+
         .cli-example::before {
             content: "$";
             color: #3498db;
-            margin-right: 12px; /* Increased margin */
+            margin-right: 12px;
+            /* Increased margin */
             font-weight: bold;
-            display: inline-block; /* Ensure proper spacing */
-            width: 15px; /* Fixed width for the dollar sign to align commands */
-            text-align: right; /* Align dollar sign to the right */
+            display: inline-block;
+            /* Ensure proper spacing */
+            width: 15px;
+            /* Fixed width for the dollar sign to align commands */
+            text-align: right;
+            /* Align dollar sign to the right */
         }
+
         .cli-section {
-            margin-bottom: 40px; /* Increased bottom margin */
+            margin-bottom: 40px;
+            /* Increased bottom margin */
             background-color: #f8f9fa;
-            padding: 25px; /* Increased padding */
-            border-radius: 8px; /* More rounded corners */
+            padding: 25px;
+            /* Increased padding */
+            border-radius: 8px;
+            /* More rounded corners */
         }
+
         .output-example {
             background-color: #f0f0f0;
-            padding: 15px; /* Increased padding */
-            margin: 15px 0; /* Increased margin */
-            border-radius: 8px; /* More rounded corners */
+            padding: 15px;
+            /* Increased padding */
+            margin: 15px 0;
+            /* Increased margin */
+            border-radius: 8px;
+            /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.9em;
-            border-left: 5px solid #9b59b6; /* Thicker border */
+            border-left: 5px solid #9b59b6;
+            /* Thicker border */
         }
+
         .tab-container {
             border: 1px solid #ddd;
-            border-radius: 8px; /* More rounded corners */
+            border-radius: 8px;
+            /* More rounded corners */
             overflow: hidden;
-            margin: 25px 0; /* Increased margin */
+            margin: 25px 0;
+            /* Increased margin */
         }
+
         .tab-buttons {
             display: flex;
             background-color: #f5f5f5;
-            border-bottom: 1px solid #ddd; /* Added bottom border to tab buttons container */
+            border-bottom: 1px solid #ddd;
+            /* Added bottom border to tab buttons container */
         }
+
         .tab-button {
-            padding: 12px 25px; /* Increased padding */
+            padding: 12px 25px;
+            /* Increased padding */
             background-color: transparent;
             border: none;
             cursor: pointer;
-            border-right: none; /* Removed right border */
+            border-right: none;
+            /* Removed right border */
             transition: background-color 0.3s;
-            font-weight: 500; /* Slightly bolder tab button text */
-            color: #777; /* Slightly muted tab button text color */
+            font-weight: 500;
+            /* Slightly bolder tab button text */
+            color: #777;
+            /* Slightly muted tab button text color */
         }
+
         .tab-button:hover {
-            background-color: #f0f0f0; /* Lighter hover background */
-            color: #555; /* Darker hover text color */
+            background-color: #f0f0f0;
+            /* Lighter hover background */
+            color: #555;
+            /* Darker hover text color */
         }
+
         .tab-button.active {
-            background-color: #fff; /* White background for active tab */
-            border-bottom: 3px solid #3498db; /* Underline for active tab */
-            color: #34495e; /* Darker text for active tab */
-            font-weight: bold; /* Bold text for active tab */
+            background-color: #fff;
+            /* White background for active tab */
+            border-bottom: 3px solid #3498db;
+            /* Underline for active tab */
+            color: #34495e;
+            /* Darker text for active tab */
+            font-weight: bold;
+            /* Bold text for active tab */
         }
+
         .tab-content {
             display: none;
-            padding: 20px; /* Increased padding */
-            background-color: #fff; /* White background for tab content */
+            padding: 20px;
+            /* Increased padding */
+            background-color: #fff;
+            /* White background for tab content */
         }
+
         .tab-content.active {
             display: block;
         }
+
         .badge {
             display: inline-block;
-            padding: 4px 10px; /* Increased badge padding */
-            border-radius: 6px; /* More rounded corners */
-            font-size: 13px; /* Slightly larger font size */
-            font-weight: 600; /* Bolder badge text */
-            letter-spacing: 0.5px; /* Added letter spacing */
+            padding: 4px 10px;
+            /* Increased badge padding */
+            border-radius: 6px;
+            /* More rounded corners */
+            font-size: 13px;
+            /* Slightly larger font size */
+            font-weight: 600;
+            /* Bolder badge text */
+            letter-spacing: 0.5px;
+            /* Added letter spacing */
         }
+
         .badge-new {
             background-color: #2ecc71;
             color: white;
         }
+
         .note {
             background-color: #fff8e1;
-            padding: 15px; /* Increased padding */
-            border-left: 5px solid #ffc107; /* Thicker border */
-            margin: 15px 0; /* Increased margin */
-            border-radius: 6px; /* More rounded corners */
+            padding: 15px;
+            /* Increased padding */
+            border-left: 5px solid #ffc107;
+            /* Thicker border */
+            margin: 15px 0;
+            /* Increased margin */
+            border-radius: 6px;
+            /* More rounded corners */
         }
+
         .note strong {
             font-weight: bold;
-            color: #333; /* Make "Note:" bold and slightly darker */
+            color: #333;
+            /* Make "Note:" bold and slightly darker */
         }
+
         footer {
-            margin-top: 50px; /* Increased footer margin */
+            margin-top: 50px;
+            /* Increased footer margin */
             text-align: center;
             color: #7f8c8d;
             padding-top: 20px;
-            border-top: 1px solid #ddd; /* Added top border to footer */
+            border-top: 1px solid #ddd;
+            /* Added top border to footer */
         }
+
         footer p {
-            color: #95a5a6; /* Softer footer text color */
-            font-size: 0.9em; /* Smaller footer font size */
+            color: #95a5a6;
+            /* Softer footer text color */
+            font-size: 0.9em;
+            /* Smaller footer font size */
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Lanet</h1>
-        <p>A secure network communication library that enables reliable and protected message exchange between devices on the same network.</p>
+        <p>A secure network communication library that enables reliable and protected message exchange between devices
+            on the same network.</p>
 
         <h2>Key Features</h2>
 
@@ -205,9 +315,11 @@
                 <h4>Benefits of Digital Signatures:</h4>
                 <ul>
                     <li><strong>Authentication</strong>: Verify that the message came from the claimed sender</li>
-                    <li><strong>Data Integrity</strong>: Ensure the message hasn't been tampered with during transit</li>
+                    <li><strong>Data Integrity</strong>: Ensure the message hasn't been tampered with during transit
+                    </li>
                     <li><strong>Non-repudiation</strong>: Senders cannot deny sending a message they signed</li>
-                    <li><strong>Protection against MITM attacks</strong>: Detect man-in-the-middle tampering attempts</li>
+                    <li><strong>Protection against MITM attacks</strong>: Detect man-in-the-middle tampering attempts
+                    </li>
                 </ul>
             </div>
         </div>
@@ -224,13 +336,15 @@
 
         <div class="feature">
             <h3>File Transfer <span class="badge badge-new">New in v0.3.0</span></h3>
-            <p>Securely transfer files between devices with encryption, digital signatures, and integrity verification.</p>
+            <p>Securely transfer files between devices with encryption, digital signatures, and integrity verification.
+            </p>
         </div>
 
         <div class="feature">
             <h3>Mesh Networking <span class="badge badge-new">New in v0.4.0</span></h3>
-            <p>Create resilient, decentralized mesh networks that enable communication between devices even without direct connectivity.</p>
-            
+            <p>Create resilient, decentralized mesh networks that enable communication between devices even without
+                direct connectivity.</p>
+
             <div class="security-feature">
                 <h4>Benefits of Mesh Networking:</h4>
                 <ul>
@@ -244,17 +358,24 @@
         </div>
 
         <div class="feature">
-            <h3>Advanced Traceroute <span class="badge badge-new">New in v0.5.0</span></h3>
-            <p>Analyze network paths with multi-protocol traceroute capabilities to understand connectivity and troubleshoot network issues.</p>
-            
+            <h3>Advanced Traceroute <span class="badge badge-new">New in v0.5.1</span></h3>
+            <p>Analyze network paths with multi-protocol traceroute capabilities to understand connectivity and
+                troubleshoot network issues.</p>
+
             <div class="security-feature">
                 <h4>Features of Advanced Traceroute:</h4>
                 <ul>
-                    <li><strong>Multi-protocol support</strong>: Use ICMP, UDP, or TCP protocols for different network environments</li>
-                    <li><strong>Load balancing detection</strong>: Identify multi-path routing and load balancers in the network</li>
+                    <li><strong>Multi-protocol support</strong>: Use ICMP, UDP, or TCP protocols for different network
+                        environments</li>
+                    <li><strong>Load balancing detection</strong>: Identify multi-path routing and load balancers in the
+                        network</li>
                     <li><strong>Response time analysis</strong>: Measure latency at each hop in the network path</li>
-                    <li><strong>Customizable parameters</strong>: Adjust max hops, timeouts, and query count for different scenarios</li>
-                    <li><strong>Hostname resolution</strong>: Automatically resolve IP addresses to hostnames for easier identification</li>
+                    <li><strong>Customizable parameters</strong>: Adjust max hops, timeouts, and query count for
+                        different scenarios</li>
+                    <li><strong>Hostname resolution</strong>: Automatically resolve IP addresses to hostnames for easier
+                        identification</li>
+                    <li><strong>Fallback mechanism</strong>: Automatically uses system traceroute when elevated
+                        permissions aren't available</li>
                 </ul>
             </div>
         </div>
@@ -262,7 +383,8 @@
         <h2>Command Line Interface</h2>
 
         <div class="note">
-            <strong>Note:</strong> All Lanet commands have detailed help available. Try <code>lanet [command] --help</code> for more options.
+            <strong>Note:</strong> All Lanet commands have detailed help available. Try
+            <code>lanet [command] --help</code> for more options.
         </div>
 
         <div class="cli-section">
@@ -280,12 +402,12 @@
             </div>
 
             <div class="output-example">
-Key pair generated!
-Private key saved to: /home/user/.lanet_keys/lanet_private.key
-Public key saved to: /home/user/.lanet_keys/lanet_public.key
+                Key pair generated!
+                Private key saved to: /home/user/.lanet_keys/lanet_private.key
+                Public key saved to: /home/user/.lanet_keys/lanet_public.key
 
-IMPORTANT: Keep your private key secure and never share it.
-Share your public key with others who need to verify your messages.
+                IMPORTANT: Keep your private key secure and never share it.
+                Share your public key with others who need to verify your messages.
             </div>
 
             <h4>Send a Signed Message</h4>
@@ -295,7 +417,8 @@ Share your public key with others who need to verify your messages.
 
             <h4>Send a Signed & Encrypted Message</h4>
             <div class="cli-example">
-                lanet send --target 192.168.1.5 --message "Secure signed message" --key "my_secret_key" --private-key-file lanet_private.key
+                lanet send --target 192.168.1.5 --message "Secure signed message" --key "my_secret_key"
+                --private-key-file lanet_private.key
             </div>
 
             <h4>Broadcast a Signed Message</h4>
@@ -315,10 +438,10 @@ Share your public key with others who need to verify your messages.
 
             <p>Example output when receiving a signed message:</p>
             <div class="output-example">
-Message from 192.168.1.5:
-Content: Hello, this is a signed message
-Signature: ✓ VERIFIED
-----------------------------------------
+                Message from 192.168.1.5:
+                Content: Hello, this is a signed message
+                Signature: ✓ VERIFIED
+                ----------------------------------------
             </div>
         </div>
 
@@ -391,7 +514,8 @@ Signature: ✓ VERIFIED
 
             <p>Send a file with encryption and digital signature:</p>
             <div class="cli-example">
-                lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key" --private-key-file lanet_private.key
+                lanet send-file --target 192.168.1.5 --file document.pdf --key "my_secret_key" --private-key-file
+                lanet_private.key
             </div>
 
             <h4>Receive Files</h4>
@@ -401,15 +525,16 @@ Signature: ✓ VERIFIED
 
             <p>With signature verification:</p>
             <div class="cli-example">
-                lanet receive-file --output ./downloads --encryption-key "my_secret_key" --public-key-file lanet_public.key
+                lanet receive-file --output ./downloads --encryption-key "my_secret_key" --public-key-file
+                lanet_public.key
             </div>
 
             <p>Example output during file transfer:</p>
             <div class="output-example">
-Receiving file: document.pdf from 192.168.1.5
-Size: 1048576 bytes
-Transfer ID: 8a7b6c5d-4e3f-2g1h-0i9j-8k7l6m5n4o3p
-Progress: 75% (786432/1048576 bytes)
+                Receiving file: document.pdf from 192.168.1.5
+                Size: 1048576 bytes
+                Transfer ID: 8a7b6c5d-4e3f-2g1h-0i9j-8k7l6m5n4o3p
+                Progress: 75% (786432/1048576 bytes)
             </div>
         </div>
 
@@ -443,13 +568,13 @@ Progress: 75% (786432/1048576 bytes)
 
             <p>Example output when viewing mesh info:</p>
             <div class="output-example">
-Mesh Node ID: 4f9a8b7c-6d5e-4f3e-2d1c-0b9a8b7c6d5e
+                Mesh Node ID: 4f9a8b7c-6d5e-4f3e-2d1c-0b9a8b7c6d5e
 
-Connected nodes:
-  b1c2d3e4-f5g6-7h8i-9j0k-l1m2n3o4p5q6 (192.168.1.5, last seen 12s ago)
-  c5d4e3f2-g1h0-i9j8-k7l6-m5n4o3p2q1r0 (192.168.1.10, last seen 5s ago)
+                Connected nodes:
+                b1c2d3e4-f5g6-7h8i-9j0k-l1m2n3o4p5q6 (192.168.1.5, last seen 12s ago)
+                c5d4e3f2-g1h0-i9j8-k7l6-m5n4o3p2q1r0 (192.168.1.10, last seen 5s ago)
 
-Message cache: 24 messages
+                Message cache: 24 messages
             </div>
         </div>
 
@@ -478,20 +603,20 @@ Message cache: 24 messages
 
             <p>Example output of a traceroute:</p>
             <div class="output-example">
-Tracing route to github.com using UDP protocol
-Maximum hops: 30, Timeout: 1s, Queries: 3
-======================================================================
-TTL  IP Address        Hostname                         Response Time
-----------------------------------------------------------------------
-  1  192.168.1.1       router.home                      2.34ms
-  2  172.16.42.1       isp-gateway.net                  8.72ms
-  3  216.58.223.14                                      15.35ms
-  4  172.217.170.78    edge-router.google.com           22.89ms
-  5  *                 *                                Request timed out
-  6  140.82.121.4      github.com                       45.23ms
-     Destination unreachable
-======================================================================
-Trace complete.
+                Tracing route to github.com using UDP protocol
+                Maximum hops: 30, Timeout: 1s, Queries: 3
+                ======================================================================
+                TTL IP Address Hostname Response Time
+                ----------------------------------------------------------------------
+                1 192.168.1.1 router.home 2.34ms
+                2 172.16.42.1 isp-gateway.net 8.72ms
+                3 216.58.223.14 15.35ms
+                4 172.217.170.78 edge-router.google.com 22.89ms
+                5 * * Request timed out
+                6 140.82.121.4 github.com 45.23ms
+                Destination unreachable
+                ======================================================================
+                Trace complete.
             </div>
         </div>
 
@@ -741,10 +866,11 @@ end</code></pre>
         <pre><code>gem install lanet</code></pre>
 
         <h2>Documentation</h2>
-        <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub repository</a>.</p>
+        <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub
+                repository</a>.</p>
 
         <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet v0.5.0 - Secure Network Communications Library</p>
+            <p>Lanet v0.5.1 - Secure Network Communications Library</p>
         </footer>
     </div>
 
@@ -767,4 +893,5 @@ end</code></pre>
         }
     </script>
 </body>
+
 </html>

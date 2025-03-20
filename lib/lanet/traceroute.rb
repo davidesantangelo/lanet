@@ -34,14 +34,7 @@ module Lanet
       destination_ip = resolve_destination(destination)
 
       begin
-        case @protocol
-        when :icmp
-          trace_icmp(destination_ip)
-        when :udp
-          trace_udp(destination_ip)
-        when :tcp
-          trace_tcp(destination_ip)
-        end
+        trace_protocol(destination_ip)
       rescue StandardError => e
         raise e unless e.message.include?("Must run as root/administrator")
 
@@ -54,15 +47,20 @@ module Lanet
 
     private
 
+    def trace_protocol(destination_ip)
+      case @protocol
+      when :icmp then trace_icmp(destination_ip)
+      when :udp then trace_udp(destination_ip)
+      when :tcp then trace_tcp(destination_ip)
+      end
+    end
+
     def trace_using_system_command(destination)
       # Build the appropriate system traceroute command
       system_cmd = case @protocol
-                   when :icmp
-                     "traceroute -I"
-                   when :tcp
-                     "traceroute -T"
-                   else
-                     "traceroute" # UDP is the default for most traceroute commands
+                   when :icmp then "traceroute -I"
+                   when :tcp then "traceroute -T"
+                   else "traceroute" # UDP is the default
                    end
 
       # Add options for max hops, timeout, and queries/retries
@@ -90,32 +88,18 @@ module Lanet
         hop_details = Regexp.last_match(2)
 
         # Parse the hop details
-        hostname = nil
-        avg_time = nil
-
-        # Check for timeout indicated by asterisks
         if ["* * *", "*"].include?(hop_details.strip)
           # All timeouts at this hop
           @results << { ttl: hop_num, ip: nil, hostname: nil, avg_time: nil, timeouts: @queries }
           next
         end
 
-        # Extract all IPs from the hop details to support load-balancing detection
+        # Extract IP, hostname, and timing info
         all_ips = extract_multiple_ips(hop_details)
-
-        # Extract the first IP (primary IP for this hop)
         ip = all_ips&.first
-
-        # Try to extract hostname if present
-        # Format: "hostname (ip)"
-        if hop_details =~ /([^\s(]+)\s+\(([0-9.]+)\)/
-          hostname = Regexp.last_match(1)
-          # We already have the IP from all_ips, so no need to set it again
-        end
-
-        # Extract response times - typically format is "X.XXX ms Y.YYY ms Z.ZZZ ms"
+        hostname = extract_hostname(hop_details)
         times = hop_details.scan(/(\d+\.\d+)\s*ms/).flatten.map(&:to_f)
-        avg_time = (times.sum / times.size).round(2) if times.any?
+        avg_time = times.any? ? (times.sum / times.size).round(2) : nil
 
         # Add to results
         @results << {
@@ -124,22 +108,22 @@ module Lanet
           hostname: hostname,
           avg_time: avg_time,
           timeouts: @queries - times.size,
-          # Include all IPs if there are multiple
           all_ips: all_ips&.size && all_ips.size > 1 ? all_ips : nil
         }
       end
+    end
+
+    def extract_hostname(hop_details)
+      hop_details =~ /([^\s(]+)\s+\(([0-9.]+)\)/ ? Regexp.last_match(1) : nil
     end
 
     def extract_multiple_ips(hop_details)
       # Match all IP addresses in the hop details
       ips = hop_details.scan(/\b(?:\d{1,3}\.){3}\d{1,3}\b/).uniq
 
-      # If no IPs were found in a non-timeout line, there might be a special format
+      # If no IPs were found in a non-timeout line, try alternate format
       if ips.empty? && !hop_details.include?("*")
-        # Try to find any IP-like patterns (some traceroute outputs format differently)
-        potential_ips = hop_details.split(/\s+/).select do |part|
-          part =~ /\b(?:\d{1,3}\.){3}\d{1,3}\b/
-        end
+        potential_ips = hop_details.split(/\s+/).select { |part| part =~ /\b(?:\d{1,3}\.){3}\d{1,3}\b/ }
         ips = potential_ips unless potential_ips.empty?
       end
 
@@ -153,14 +137,10 @@ module Lanet
       # Otherwise, resolve the hostname to an IPv4 address
       begin
         addresses = Resolv.getaddresses(destination)
-
-        # If no addresses are returned, the hostname is unresolvable
         raise Resolv::ResolvError, "no address for #{destination}" if addresses.empty?
 
         # Find the first IPv4 address
         ipv4_address = addresses.find { |addr| addr =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/ }
-
-        # If no IPv4 address is found, raise an error
         raise "No IPv4 address found for hostname: #{destination}" if ipv4_address.nil?
 
         ipv4_address
@@ -181,10 +161,8 @@ module Lanet
         hop_info = trace_hop_icmp(destination_ip, ttl)
         @results << hop_info
 
-        # Stop if we've reached the destination
-        break if hop_info[:ip] == destination_ip
-        # Stop if we've hit an unreachable marker
-        break if hop_info[:unreachable]
+        # Stop if we've reached the destination or hit unreachable
+        break if hop_info[:ip] == destination_ip || hop_info[:unreachable]
       end
     end
 
@@ -193,9 +171,7 @@ module Lanet
 
       # Use ping with increasing TTL values
       @queries.times do
-        Time.now
         cmd = ping_command_with_ttl(destination_ip, ttl)
-
         ip = nil
         response_time = nil
 
@@ -246,8 +222,6 @@ module Lanet
 
     def trace_hop_udp(destination_ip, ttl)
       hop_info = { ttl: ttl, responses: [] }
-
-      # Create a listener socket for ICMP responses
       icmp_socket = create_icmp_socket
 
       @queries.times do |i|
@@ -295,14 +269,14 @@ module Lanet
 
     def create_icmp_socket
       socket = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_ICMP)
-      if RbConfig::CONFIG["host_os"] =~ /mswin|mingw|cygwin/
-      # Windows requires different socket setup
-      else
-        socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
-      end
+      socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true) unless windows?
       socket
     rescue Errno::EPERM, Errno::EACCES
       raise "Must run as root/administrator to create raw sockets for traceroute"
+    end
+
+    def windows?
+      RbConfig::CONFIG["host_os"] =~ /mswin|mingw|cygwin/
     end
 
     def trace_tcp(destination_ip)
@@ -310,10 +284,8 @@ module Lanet
         hop_info = trace_hop_tcp(destination_ip, ttl)
         @results << hop_info
 
-        # Stop if we've reached the destination
-        break if hop_info[:ip] == destination_ip
-        # Stop if we've hit an unreachable marker
-        break if hop_info[:unreachable]
+        # Stop if we've reached the destination or hit unreachable
+        break if hop_info[:ip] == destination_ip || hop_info[:unreachable]
       end
     end
 
@@ -324,15 +296,16 @@ module Lanet
         # Use different ports for each query
         port = 80 + i
         start_time = Time.now
+        socket = nil
 
         begin
           # Create TCP socket with specific TTL
           socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
           socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_TTL, ttl)
+          sockaddr = Socket.sockaddr_in(port, destination_ip)
 
           # Attempt to connect with timeout
           Timeout.timeout(@timeout) do
-            sockaddr = Socket.sockaddr_in(port, destination_ip)
             socket.connect_nonblock(sockaddr)
           end
 
@@ -345,39 +318,7 @@ module Lanet
           }
         rescue IO::WaitWritable
           # Connection in progress - need to use select for non-blocking socket
-          response_time = nil
-          ip = nil
-
-          begin
-            Timeout.timeout(@timeout) do
-              _, writable, = IO.select(nil, [socket], nil, @timeout)
-              if writable&.any?
-                # Socket is writable, check for errors
-                begin
-                  socket.connect_nonblock(sockaddr) # Will raise Errno::EISCONN if connected
-                rescue Errno::EISCONN
-                  # Successfully connected
-                  response_time = ((Time.now - start_time) * 1000).round(2)
-                  ip = destination_ip
-                rescue SystemCallError
-                  # Get the intermediary IP from the error
-                  # This is a simplification - in reality, we'd need to use raw sockets
-                  # and analyze TCP packets with specific TTL values
-                  ip = nil
-                end
-              end
-            end
-          rescue Timeout::Error
-            hop_info[:responses] << { ip: nil, response_time: nil, timeout: true }
-          end
-
-          if ip
-            hop_info[:responses] << {
-              ip: ip,
-              response_time: response_time,
-              timeout: false
-            }
-          end
+          handle_wait_writable(socket, sockaddr, start_time, destination_ip, hop_info)
         rescue SystemCallError, Timeout::Error
           hop_info[:responses] << { ip: nil, response_time: nil, timeout: true }
         ensure
@@ -386,6 +327,39 @@ module Lanet
       end
 
       process_hop_responses(hop_info)
+    end
+
+    def handle_wait_writable(socket, sockaddr, start_time, destination_ip, hop_info)
+      response_time = nil
+      ip = nil
+
+      begin
+        Timeout.timeout(@timeout) do
+          _, writable, = IO.select(nil, [socket], nil, @timeout)
+          if writable&.any?
+            begin
+              socket.connect_nonblock(sockaddr) # Will raise Errno::EISCONN if connected
+            rescue Errno::EISCONN
+              # Successfully connected
+              response_time = ((Time.now - start_time) * 1000).round(2)
+              ip = destination_ip
+            rescue SystemCallError
+              # Get the intermediary IP from the error - would need raw sockets to do properly
+              ip = nil
+            end
+          end
+        end
+      rescue Timeout::Error
+        hop_info[:responses] << { ip: nil, response_time: nil, timeout: true }
+      end
+
+      return unless ip
+
+      hop_info[:responses] << {
+        ip: ip,
+        response_time: response_time,
+        timeout: false
+      }
     end
 
     def process_hop_responses(hop_info)
