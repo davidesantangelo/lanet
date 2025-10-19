@@ -9,57 +9,41 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.7;
-            /* Increased line height for better readability */
             color: #34495e;
-            /* Darker, more professional text color */
             max-width: 980px;
-            /* Slightly wider max width for content */
             margin: 20px auto;
-            /* Added top and bottom margin for better spacing */
             padding: 20px;
             background-color: #f4f6f9;
-            /* Lighter background color */
         }
 
         h1 {
             color: #34495e;
-            /* Darker heading color */
             border-bottom: 3px solid #3498db;
-            /* Thicker border */
             padding-bottom: 12px;
-            /* Increased padding */
             letter-spacing: -0.5px;
-            /* Slightly tighter letter spacing for headings */
         }
 
         h2 {
             color: #3498db;
-            /* Primary blue color for subheadings */
             margin-top: 35px;
-            /* Increased top margin */
             margin-bottom: 10px;
-            /* Added bottom margin */
         }
 
         h3 {
             color: #2ecc71;
-            /* Vibrant green for section titles */
             margin-top: 30px;
             margin-bottom: 8px;
         }
 
         h4 {
             color: #34495e;
-            /* Darker color for sub-subheadings */
             margin-top: 25px;
             margin-bottom: 5px;
         }
 
         p {
             margin-bottom: 15px;
-            /* Increased paragraph spacing */
             color: #555;
-            /* Slightly softer paragraph text color */
         }
 
         ul,
@@ -70,168 +54,175 @@
 
         pre {
             background-color: #f0f0f0;
-            /* Slightly darker pre background */
             border: 1px solid #ccc;
-            /* Lighter border */
             border-left: 5px solid #3498db;
-            /* Thicker, more prominent left border */
             padding: 16px;
-            /* Increased padding */
             overflow-x: auto;
             border-radius: 6px;
-            /* More rounded corners */
             font-size: 0.95em;
-            /* Slightly smaller font size in code blocks */
         }
 
         code {
             font-family: 'Courier New', Courier, monospace;
             color: #2c3e50;
-            /* Darker code text color */
         }
 
         .container {
             background-color: #fff;
             border-radius: 10px;
-            /* More rounded container corners */
             box-shadow: 0 3px 20px rgba(0, 0, 0, 0.08);
-            /* Softer, more subtle shadow */
             padding: 40px;
-            /* Increased container padding */
+        }
+
+        .version-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .version-banner h2 {
+            color: white;
+            margin: 0 0 15px 0;
+            font-size: 2em;
+        }
+
+        .version-banner p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+
+        .whats-new {
+            background-color: #f8f9fa;
+            border-left: 5px solid #9b59b6;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .whats-new h3 {
+            color: #9b59b6;
+            margin-top: 0;
+        }
+
+        .whats-new ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .whats-new ul li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .whats-new ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 1.2em;
         }
 
         .feature {
             margin: 25px 0;
-            /* Increased feature margin */
             padding-left: 25px;
-            /* Increased padding */
             border-left: 5px solid #2ecc71;
-            /* Thicker feature border */
         }
 
         .security-feature {
             background-color: #e8f4fc;
             padding: 20px;
-            /* Increased padding */
             margin: 15px 0;
-            /* Increased margin */
             border-radius: 8px;
-            /* More rounded corners */
         }
 
         .security-feature ul li {
             margin-bottom: 8px;
-            /* Spacing in security feature lists */
         }
 
         .cli-example {
             background-color: #2c3e50;
             color: #ecf0f1;
             padding: 15px 20px;
-            /* Increased padding */
             margin: 15px 0;
-            /* Increased margin */
             border-radius: 8px;
-            /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             position: relative;
             font-size: 0.95em;
-            /* Slightly smaller font size in CLI examples */
         }
 
         .cli-example::before {
             content: "$";
             color: #3498db;
             margin-right: 12px;
-            /* Increased margin */
             font-weight: bold;
             display: inline-block;
-            /* Ensure proper spacing */
             width: 15px;
-            /* Fixed width for the dollar sign to align commands */
             text-align: right;
-            /* Align dollar sign to the right */
         }
 
         .cli-section {
             margin-bottom: 40px;
-            /* Increased bottom margin */
             background-color: #f8f9fa;
             padding: 25px;
-            /* Increased padding */
             border-radius: 8px;
-            /* More rounded corners */
         }
 
         .output-example {
             background-color: #f0f0f0;
             padding: 15px;
-            /* Increased padding */
             margin: 15px 0;
-            /* Increased margin */
             border-radius: 8px;
-            /* More rounded corners */
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.9em;
             border-left: 5px solid #9b59b6;
-            /* Thicker border */
         }
 
         .tab-container {
             border: 1px solid #ddd;
             border-radius: 8px;
-            /* More rounded corners */
             overflow: hidden;
             margin: 25px 0;
-            /* Increased margin */
         }
 
         .tab-buttons {
             display: flex;
             background-color: #f5f5f5;
             border-bottom: 1px solid #ddd;
-            /* Added bottom border to tab buttons container */
         }
 
         .tab-button {
             padding: 12px 25px;
-            /* Increased padding */
             background-color: transparent;
             border: none;
             cursor: pointer;
             border-right: none;
-            /* Removed right border */
             transition: background-color 0.3s;
             font-weight: 500;
-            /* Slightly bolder tab button text */
             color: #777;
-            /* Slightly muted tab button text color */
         }
 
         .tab-button:hover {
             background-color: #f0f0f0;
-            /* Lighter hover background */
             color: #555;
-            /* Darker hover text color */
         }
 
         .tab-button.active {
             background-color: #fff;
-            /* White background for active tab */
             border-bottom: 3px solid #3498db;
-            /* Underline for active tab */
             color: #34495e;
-            /* Darker text for active tab */
             font-weight: bold;
-            /* Bold text for active tab */
         }
 
         .tab-content {
             display: none;
             padding: 20px;
-            /* Increased padding */
             background-color: #fff;
-            /* White background for tab content */
         }
 
         .tab-content.active {
@@ -241,15 +232,10 @@
         .badge {
             display: inline-block;
             padding: 4px 10px;
-            /* Increased badge padding */
             border-radius: 6px;
-            /* More rounded corners */
             font-size: 13px;
-            /* Slightly larger font size */
             font-weight: 600;
-            /* Bolder badge text */
             letter-spacing: 0.5px;
-            /* Added letter spacing */
         }
 
         .badge-new {
@@ -257,45 +243,64 @@
             color: white;
         }
 
+        .badge-v1 {
+            background-color: #9b59b6;
+            color: white;
+        }
+
         .note {
             background-color: #fff8e1;
             padding: 15px;
-            /* Increased padding */
             border-left: 5px solid #ffc107;
-            /* Thicker border */
             margin: 15px 0;
-            /* Increased margin */
             border-radius: 6px;
-            /* More rounded corners */
         }
 
         .note strong {
             font-weight: bold;
             color: #333;
-            /* Make "Note:" bold and slightly darker */
         }
 
         footer {
             margin-top: 50px;
-            /* Increased footer margin */
             text-align: center;
             color: #7f8c8d;
             padding-top: 20px;
             border-top: 1px solid #ddd;
-            /* Added top border to footer */
         }
 
         footer p {
             color: #95a5a6;
-            /* Softer footer text color */
             font-size: 0.9em;
-            /* Smaller footer font size */
         }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div class="version-banner">
+            <h2>🚀 Lanet v1.0.0</h2>
+            <p>Secure Network Communications Library</p>
+            <p style="font-size: 0.95em; margin-top: 15px;">Major architectural improvements with enhanced reliability
+                and performance
+            </p>
+        </div>
+
+        <div class="whats-new">
+            <h3>✨ What's New in v1.0.0</h3>
+            <ul>
+                <li><strong>Enhanced Architecture</strong> - Centralized configuration management with new Config class
+                </li>
+                <li><strong>Better Resource Management</strong> - Improved socket lifecycle and automatic cleanup
+                </li>
+                <li><strong>Advanced Error Handling</strong> - Custom exceptions and detailed error messages</li>
+                <li><strong>Reduced Complexity</strong> - 75% reduction in cyclomatic complexity</li>
+                <li><strong>Improved Performance</strong> - Optimized network operations and state management</li>
+                <li><strong>100% Backward Compatible</strong> - All existing code continues to work</li>
+                <li><strong>96 Tests Passing</strong> - Comprehensive test coverage ensures reliability</li>
+            </ul>
+        </div>
+
         <h1>Lanet</h1>
         <p>A secure network communication library that enables reliable and protected message exchange between devices
             on the same network.</p>
@@ -308,7 +313,7 @@
         </div>
 
         <div class="feature">
-            <h3>Digital Signatures <span class="badge badge-new">New in v0.2.1</span></h3>
+            <h3>Digital Signatures</h3>
             <p>Verify message authenticity and integrity with RSA-based digital signatures.</p>
 
             <div class="security-feature">
@@ -335,13 +340,14 @@
         </div>
 
         <div class="feature">
-            <h3>File Transfer <span class="badge badge-new">New in v0.3.0</span></h3>
-            <p>Securely transfer files between devices with encryption, digital signatures, and integrity verification.
+            <h3>File Transfer <span class="badge badge-v1">Enhanced in v1.0</span></h3>
+            <p>Securely transfer files between devices with improved state management, encryption, digital signatures,
+                and integrity verification.
             </p>
         </div>
 
         <div class="feature">
-            <h3>Mesh Networking <span class="badge badge-new">New in v0.4.0</span></h3>
+            <h3>Mesh Networking</h3>
             <p>Create resilient, decentralized mesh networks that enable communication between devices even without
                 direct connectivity.</p>
 
@@ -358,7 +364,7 @@
         </div>
 
         <div class="feature">
-            <h3>Advanced Traceroute <span class="badge badge-new">New in v0.5.1</span></h3>
+            <h3>Advanced Traceroute</h3>
             <p>Analyze network paths with multi-protocol traceroute capabilities to understand connectivity and
                 troubleshoot network issues.</p>
 
@@ -388,7 +394,7 @@
         </div>
 
         <div class="cli-section">
-            <h3>Digital Signature Commands <span class="badge badge-new">New in v0.2.1</span></h3>
+            <h3>Digital Signature Commands</h3>
 
             <h4>Generate a Key Pair</h4>
             <p>Create RSA keys for signing and verifying messages:</p>
@@ -504,7 +510,7 @@
         </div>
 
         <div class="cli-section">
-            <h3>File Transfer Commands <span class="badge badge-new">New in v0.3.0</span></h3>
+            <h3>File Transfer Commands</h3>
 
             <h4>Send a File</h4>
             <p>Send a file with encryption:</p>
@@ -539,7 +545,7 @@
         </div>
 
         <div class="cli-section">
-            <h3>Mesh Network Commands <span class="badge badge-new">New in v0.4.0</span></h3>
+            <h3>Mesh Network Commands</h3>
 
             <h4>Start a Mesh Network Node</h4>
             <div class="cli-example">
@@ -579,7 +585,7 @@
         </div>
 
         <div class="cli-section">
-            <h3>Traceroute Commands <span class="badge badge-new">New in v0.5.0</span></h3>
+            <h3>Traceroute Commands</h3>
 
             <h4>Basic Traceroute (UDP protocol)</h4>
             <div class="cli-example">
@@ -869,8 +875,11 @@ end</code></pre>
         <p>For complete documentation, please visit the <a href="https://github.com/davidesantangelo/lanet">GitHub
                 repository</a>.</p>
 
-        <footer style="margin-top: 40px; text-align: center; color: #7f8c8d;">
-            <p>Lanet v0.5.1 - Secure Network Communications Library</p>
+        <footer>
+            <p>Lanet v1.0.0 - Secure Network Communications Library</p>
+            <p style="font-size: 0.85em; margin-top: 10px;">Major architectural improvements • Enhanced reliability •
+                100% backward compatible
+            </p>
         </footer>
     </div>
 

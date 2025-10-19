@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    lanet (0.5.1)
+    lanet (1.0.0)
       thor (~> 1.2)
 
 GEM

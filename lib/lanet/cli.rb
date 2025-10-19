@@ -134,11 +134,7 @@ module Lanet
         puts "Content: #{result[:content]}"
 
         if result.key?(:verified)
-          verification_status = if result[:verified]
-                                  "VERIFIED"
-                                else
-                                  "NOT VERIFIED: #{result[:verification_status]}"
-                                end
+          verification_status = result[:verified] ? "VERIFIED" : "NOT VERIFIED: #{result[:verification_status]}"
           puts "Signature: #{verification_status}"
         end
 

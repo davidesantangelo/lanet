@@ -369,6 +369,8 @@ lanet traceroute --host github.com --protocol tcp --max-hops 20 --timeout 2 --qu
 
 You can also use Lanet programmatically in your Ruby applications:
 
+#### Basic Usage
+
 ```ruby
 require 'lanet'
 
@@ -377,6 +379,22 @@ scanner = Lanet.scanner
 active_ips = scanner.scan('192.168.1.0/24')
 puts "Found devices: #{active_ips.join(', ')}"
 
+# Send a message to a specific IP
+sender = Lanet.sender
+sender.send_to('192.168.1.5', 'Hello from Ruby!')
+sender.close  # Proper cleanup (new in v1.0.0)
+
+# Listen for incoming messages
+receiver = Lanet.receiver
+receiver.listen do |data, ip|
+  puts "Received from #{ip}: #{data}"
+end
+receiver.close  # Proper cleanup (new in v1.0.0)
+```
+
+#### Advanced Features
+
+```ruby
 # Scan with verbose option for detailed output
 detailed_hosts = scanner.scan('192.168.1.0/24', 1, 32, true)
 detailed_hosts.each do |host|
@@ -387,23 +405,19 @@ end
 # Customize scanning performance with timeout and thread count
 active_ips = scanner.scan('192.168.1.0/24', 0.5, 16)  # 0.5 second timeout, 16 threads
 
-# Send a message to a specific IP
-sender = Lanet.sender
-sender.send_to('192.168.1.5', 'Hello from Ruby!')
-
 # Broadcast a message to all devices
+sender = Lanet.sender
 sender.broadcast('Announcement to all devices!')
-
-# Listen for incoming messages
-receiver = Lanet.receiver
-receiver.listen do |data, ip|
-  puts "Received from #{ip}: #{data}"
-end
+sender.close
 
 # Work with encrypted messages
 encrypted = Lanet.encrypt('Secret message', 'my_encryption_key')
 decrypted = Lanet.decrypt(encrypted, 'my_encryption_key')
+```
 
+#### Network Monitoring
+
+```ruby
 # Ping a specific host
 pinger = Lanet.pinger
 result = pinger.ping_host('192.168.1.5')
@@ -417,11 +431,6 @@ result = pinger.ping_host('192.168.1.5', true) # true enables real-time output
 # Ping continuously until interrupted
 pinger = Lanet.pinger
 pinger.ping_host('192.168.1.5', true, true) # true, true enables real-time continuous output
-
-# Ping without real-time output (for programmatic use)
-result = pinger.ping_host('192.168.1.5')
-puts "Host reachable: #{result[:status]}"
-puts "Response time: #{result[:response_time]}ms"
 
 # Check if a host is reachable
 if pinger.reachable?('192.168.1.5')
@@ -439,14 +448,20 @@ end
 
 # Ping multiple hosts continuously
 pinger.ping_hosts(['192.168.1.5', '192.168.1.6'], true, true)
+```
 
-# Work with secure file transfers
+#### Secure File Transfers
+
+```ruby
+# Work with secure file transfers (improved in v1.0.0)
 file_transfer = Lanet.file_transfer
+
+# Send file with progress tracking
 file_transfer.send_file('192.168.1.5', 'document.pdf', 'encryption_key') do |progress, bytes, total|
   puts "Progress: #{progress}% (#{bytes}/#{total} bytes)"
 end
 
-# Receive files
+# Receive files with event handling
 file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
   case event
   when :start
@@ -455,9 +470,15 @@ file_transfer.receive_file('./downloads', 'encryption_key') do |event, data|
     puts "Progress: #{data[:progress]}%"
   when :complete
     puts "File saved to: #{data[:file_path]}"
+  when :error
+    puts "Error: #{data[:error]}"
   end
 end
+```
 
+#### Mesh Networking
+
+```ruby
 # Mesh Networking
 mesh = Lanet.mesh_network
 mesh.start  # Start the mesh node and discovery service
@@ -472,9 +493,19 @@ mesh.connections.each do |node_id, info|
   puts "  #{node_id} (#{info[:ip]})"
 end
 
+# Check mesh health (new in v1.0.0)
+if mesh.healthy?
+  stats = mesh.stats
+  puts "Mesh is healthy: #{stats[:connections]} connections, #{stats[:processed_messages]} messages processed"
+end
+
 # Properly stop the mesh node
 mesh.stop
+```
 
+#### Network Path Analysis
+
+```ruby
 # Trace route to a host with different protocols
 tracer = Lanet.traceroute(protocol: :udp)
 hops = tracer.trace('github.com')
@@ -485,6 +516,28 @@ end
 # Use TCP protocol with custom parameters
 tcp_tracer = Lanet.traceroute(protocol: :tcp, max_hops: 15, timeout: 2)
 tcp_tracer.trace('google.com')
+```
+
+#### Configuration (New in v1.0.0)
+
+```ruby
+# Access centralized configuration
+require 'lanet'
+
+# View default settings
+puts "Default port: #{Lanet::Config::DEFAULT_PORT}"
+puts "File transfer port: #{Lanet::Config::FILE_TRANSFER_PORT}"
+puts "Mesh port: #{Lanet::Config::MESH_PORT}"
+puts "Chunk size: #{Lanet::Config::CHUNK_SIZE}"
+
+# Configure custom logger
+Lanet::Config.configure do |config|
+  config.logger = Logger.new('lanet.log')
+  config.logger.level = Logger::DEBUG
+end
+
+# Use the configured logger
+Lanet::Config.logger.info("Starting Lanet application")
 ```
 
 ## Mesh Network

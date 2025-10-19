@@ -9,21 +9,16 @@ require "base64"
 require "json"
 require "socket"
 require "timeout"
+require_relative "config"
+require_relative "transfer_state"
 
 module Lanet
+  # FileTransfer handles secure file transmission over the network
   class FileTransfer
-    # Constants
-    # Use smaller chunks in tests to avoid "Message too long" errors
-    CHUNK_SIZE = if ENV["LANET_TEST_CHUNK_SIZE"]
-                   ENV["LANET_TEST_CHUNK_SIZE"].to_i
-                 elsif ENV["RACK_ENV"] == "test"
-                   8192 # 8KB in test environment
-                 else
-                   65_536 # 64KB in production
-                 end
-
-    MAX_RETRIES = 3
-    TIMEOUT = ENV["RACK_ENV"] == "test" ? 2 : 10 # Seconds
+    # Use configuration constants
+    CHUNK_SIZE = Config::CHUNK_SIZE
+    MAX_RETRIES = Config::MAX_RETRIES
+    TIMEOUT = Config::FILE_TRANSFER_TIMEOUT
 
     # Message types
     FILE_HEADER = "FH"  # File metadata
@@ -204,17 +199,19 @@ module Lanet
     def handle_file_header(sender_ip, message_data, active_transfers, encryption_key, callback)
       header = JSON.parse(message_data)
       transfer_id = header["id"]
-      active_transfers[transfer_id] = {
+
+      # Create new transfer state
+      active_transfers[transfer_id] = TransferState.new(
+        transfer_id: transfer_id,
         sender_ip: sender_ip,
         file_name: header["name"],
         file_size: header["size"],
-        expected_checksum: header["checksum"],
-        temp_file: Tempfile.new([File.basename(header["name"], ".*"), File.extname(header["name"])]),
-        chunks_received: 0,
-        timestamp: Time.now
-      }
+        expected_checksum: header["checksum"]
+      )
+
       ack_message = Lanet::Encryptor.prepare_message("#{FILE_ACK}#{transfer_id}", encryption_key)
       @sender.send_to(sender_ip, ack_message)
+
       callback&.call(:start, {
                        transfer_id: transfer_id,
                        sender_ip: sender_ip,
@@ -229,19 +226,18 @@ module Lanet
       chunk = JSON.parse(message_data)
       transfer_id = chunk["id"]
       transfer = active_transfers[transfer_id]
-      if transfer && transfer[:sender_ip] == sender_ip
+
+      if transfer && transfer.sender_ip == sender_ip
         chunk_data = Base64.strict_decode64(chunk["data"])
-        transfer[:temp_file].write(chunk_data)
-        transfer[:chunks_received] += 1
-        bytes_received = transfer[:temp_file].size
-        progress = (bytes_received.to_f / transfer[:file_size] * 100).round(2)
+        transfer.write_chunk(chunk_data)
+
         callback&.call(:progress, {
                          transfer_id: transfer_id,
                          sender_ip: sender_ip,
-                         file_name: transfer[:file_name],
-                         progress: progress,
-                         bytes_received: bytes_received,
-                         total_bytes: transfer[:file_size]
+                         file_name: transfer.file_name,
+                         progress: transfer.progress,
+                         bytes_received: transfer.bytes_received,
+                         total_bytes: transfer.file_size
                        })
       end
     rescue JSON::ParserError => e
@@ -252,32 +248,34 @@ module Lanet
       end_data = JSON.parse(message_data)
       transfer_id = end_data["id"]
       transfer = active_transfers[transfer_id]
-      if transfer && transfer[:sender_ip] == sender_ip
-        transfer[:temp_file].close
-        calculated_checksum = calculate_file_checksum(transfer[:temp_file].path)
-        if calculated_checksum == transfer[:expected_checksum]
-          final_path = File.join(output_dir, transfer[:file_name])
-          FileUtils.mv(transfer[:temp_file].path, final_path)
-          ack_message = Lanet::Encryptor.prepare_message("#{FILE_ACK}#{transfer_id}", encryption_key)
-          @sender.send_to(sender_ip, ack_message)
-          callback&.call(:complete, {
-                           transfer_id: transfer_id,
-                           sender_ip: sender_ip,
-                           file_name: transfer[:file_name],
-                           file_path: final_path
-                         })
-        else
-          error_msg = "Checksum verification failed"
-          send_error(sender_ip, transfer_id, error_msg, encryption_key)
-          callback&.call(:error, {
-                           transfer_id: transfer_id,
-                           sender_ip: sender_ip,
-                           error: error_msg
-                         })
-        end
-        transfer[:temp_file].unlink
-        active_transfers.delete(transfer_id)
+
+      return unless transfer && transfer.sender_ip == sender_ip
+
+      if transfer.verify_checksum
+        final_path = File.join(output_dir, transfer.file_name)
+        FileUtils.mv(transfer.temp_file.path, final_path)
+
+        ack_message = Lanet::Encryptor.prepare_message("#{FILE_ACK}#{transfer_id}", encryption_key)
+        @sender.send_to(sender_ip, ack_message)
+
+        callback&.call(:complete, {
+                         transfer_id: transfer_id,
+                         sender_ip: sender_ip,
+                         file_name: transfer.file_name,
+                         file_path: final_path
+                       })
+      else
+        error_msg = "Checksum verification failed"
+        send_error(sender_ip, transfer_id, error_msg, encryption_key)
+        callback&.call(:error, {
+                         transfer_id: transfer_id,
+                         sender_ip: sender_ip,
+                         error: error_msg
+                       })
       end
+
+      transfer.cleanup
+      active_transfers.delete(transfer_id)
     rescue JSON::ParserError => e
       send_error(sender_ip, "unknown", "Invalid end marker format: #{e.message}", encryption_key)
     end
@@ -285,31 +283,25 @@ module Lanet
     def handle_file_error(sender_ip, message_data, active_transfers, callback)
       error_data = JSON.parse(message_data)
       transfer_id = error_data["id"]
-      if callback && active_transfers[transfer_id]
-        callback.call(:error, {
-                        transfer_id: transfer_id,
-                        sender_ip: sender_ip,
-                        error: error_data["message"]
-                      })
-        if active_transfers[transfer_id]
-          active_transfers[transfer_id][:temp_file].close
-          active_transfers[transfer_id][:temp_file].unlink
-          active_transfers.delete(transfer_id)
-        end
-      end
+      transfer = active_transfers[transfer_id]
+
+      return unless callback && transfer
+
+      callback.call(:error, {
+                      transfer_id: transfer_id,
+                      sender_ip: sender_ip,
+                      error: error_data["message"]
+                    })
+
+      transfer.cleanup
+      active_transfers.delete(transfer_id)
     rescue JSON::ParserError
       # Ignore malformed error messages
     end
 
     def cleanup_transfers(active_transfers)
-      active_transfers.each_value do |transfer|
-        transfer[:temp_file].close
-        begin
-          transfer[:temp_file].unlink
-        rescue StandardError
-          nil
-        end
-      end
+      active_transfers.each_value(&:cleanup)
+      active_transfers.clear
     end
   end
 end

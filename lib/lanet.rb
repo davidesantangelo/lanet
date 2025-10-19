@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "lanet/version"
+require "lanet/config"
 require "lanet/sender"
 require "lanet/receiver"
 require "lanet/scanner"
 require "lanet/encryptor"
+require "lanet/transfer_state"
 require "lanet/cli"
 require "lanet/ping"
 require "lanet/file_transfer"

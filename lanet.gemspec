@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["davide.santangelo@example.com"]
 
   spec.summary       = "Powerful CLI/API tool for local network communication and discovery"
-  spec.description   = "Lanet provides a simple yet powerful API for LAN device discovery, secure messaging, and real-time network monitoring. Features include encrypted communications, network scanning, targeted and broadcast messaging, and host pinging capabilities."
+  spec.description   = "Lanet provides a simple yet powerful API for LAN device discovery, secure messaging, and real-time network monitoring. Features include encrypted communications, network scanning, targeted and broadcast messaging, host pinging, secure file transfers, mesh networking, and advanced traceroute capabilities. Version 1.0.0 brings significant architectural improvements with better resource management, enhanced error handling, and improved code quality while maintaining 100% backward compatibility."
   spec.homepage      = "https://github.com/davidesantangelo/lanet"
   spec.license       = "MIT"
 
